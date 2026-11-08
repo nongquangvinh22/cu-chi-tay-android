@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Cử Chỉ Tay</string>
+    <string name="accessibility_description">Cho phép Cử Chỉ Tay thực hiện thao tác vuốt màn hình và chụp màn hình thay bạn khi nhận ra cử chỉ tay qua camera trước. Ứng dụng không đọc nội dung màn hình.</string>
+</resources>

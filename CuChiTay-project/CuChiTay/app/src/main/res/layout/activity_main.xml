@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cử Chỉ Tay"
+            android:textSize="28sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Điều khiển điện thoại bằng cử chỉ tay trước camera trước, không cần chạm màn hình."
+            android:textSize="15sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="Bước 1 - Cấp quyền camera"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvCam"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textSize="15sp" />
+
+        <Button
+            android:id="@+id/btnCam"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Cấp quyền camera và thông báo" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="Bước 2 - Bật dịch vụ Trợ năng"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvA11y"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textSize="15sp" />
+
+        <Button
+            android:id="@+id/btnA11y"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Mở cài đặt Trợ năng" />
+
+        <Button
+            android:id="@+id/btnAppInfo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Nút Trợ năng bị mờ? Mở thông tin ứng dụng" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="Bước 3 - Bật điều khiển"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/btnToggle"
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
+            android:layout_marginTop="4dp"
+            android:textSize="17sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="28dp"
+            android:text="Tùy chỉnh"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <Switch
+            android:id="@+id/swSwipe"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Hất tay lên/xuống để cuộn trang" />
+
+        <Switch
+            android:id="@+id/swGrab"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Xòe tay rồi nắm lại để chụp màn hình" />
+
+        <Switch
+            android:id="@+id/swHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Cho phép hất tay sang trái/phải" />
+
+        <Switch
+            android:id="@+id/swInvert"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Đảo chiều lên/xuống" />
+
+        <TextView
+            android:id="@+id/tvSens"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:textSize="15sp" />
+
+        <SeekBar
+            android:id="@+id/seekSens"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:max="100" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="28dp"
+            android:lineSpacingExtra="3dp"
+            android:text="Cách dùng\n\n- Đặt điện thoại thẳng đứng, camera trước nhìn thấy bàn tay bạn (cách khoảng 25 - 50 cm, đủ sáng).\n- Cuộn: xòe bàn tay rồi hất nhanh lên (xem video tiếp theo) hoặc hất nhanh xuống (quay lại). Sau mỗi lần hất, thả tay chậm lại hoặc đưa tay ra khỏi khung hình để app không hiểu nhầm cú thu tay về.\n- Chụp màn hình: xòe 5 ngón trước camera, rồi nắm chặt lại.\n- Muốn tắt: bấm nút Tắt trên thông báo hoặc ngay trong app này.\n\nMẹo cho vivo: vào Cài đặt > Pin > Mức tiêu thụ pin nền, chọn Không hạn chế cho Cử Chỉ Tay; khóa app trong màn hình đa nhiệm để hệ thống không tự tắt."
+            android:textSize="14sp" />
+    </LinearLayout>
+</ScrollView>
