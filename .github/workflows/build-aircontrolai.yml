@@ -47,13 +47,14 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          test -s AirControlAI_source.zip.b64
-          base64 --decode AirControlAI_source.zip.b64 > "$RUNNER_TEMP/AirControlAI_source.zip"
+          cat AirControlAI_source.part01.b64 AirControlAI_source.part02.b64 AirControlAI_source.part03.b64 AirControlAI_source.part04.b64 AirControlAI_source.part05.b64 AirControlAI_source.part06a.b64 AirControlAI_source.part06b.b64 AirControlAI_source.part07a.b64 AirControlAI_source.part07b.b64 > "$RUNNER_TEMP/AirControlAI_source.zip.b64"
+          test "$(wc -c < "$RUNNER_TEMP/AirControlAI_source.zip.b64")" -eq 25912
+          base64 --decode "$RUNNER_TEMP/AirControlAI_source.zip.b64" > "$RUNNER_TEMP/AirControlAI_source.zip"
           mkdir -p "$RUNNER_TEMP/aircontrol-source"
           unzip -q "$RUNNER_TEMP/AirControlAI_source.zip" -d "$RUNNER_TEMP/aircontrol-source"
           test -d "$RUNNER_TEMP/aircontrol-source/AirControlAI/app/src/main"
           cp -a "$RUNNER_TEMP/aircontrol-source/AirControlAI/." .
-          rm -rf "$RUNNER_TEMP/aircontrol-source" AirControlAI_source.zip.b64
+          rm -rf "$RUNNER_TEMP/aircontrol-source" "$RUNNER_TEMP/AirControlAI_source.zip.b64" AirControlAI_source.part*.b64
           echo "Project files restored."
 
       - name: Verify Java and Gradle
