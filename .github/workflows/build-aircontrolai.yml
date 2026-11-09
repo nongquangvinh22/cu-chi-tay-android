@@ -34,7 +34,7 @@ jobs:
           fi
           test -x "$SDKMANAGER"
           echo "Using SDK Manager: $SDKMANAGER"
-          yes | "$SDKMANAGER" --sdk_root="$ANDROID_HOME" --licenses >/dev/null
+          yes | "$SDKMANAGER" --sdk_root="$ANDROID_HOME" --licenses >/dev/null || true
           "$SDKMANAGER" --sdk_root="$ANDROID_HOME" --install \
             "platform-tools" "platforms;android-35" "build-tools;35.0.0"
 
