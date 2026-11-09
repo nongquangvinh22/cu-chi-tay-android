@@ -28,9 +28,14 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          echo "ANDROID_HOME=${ANDROID_HOME:-}"
-          sdkmanager --sdk_root="${ANDROID_HOME}" --licenses </dev/null || true
-          sdkmanager --sdk_root="${ANDROID_HOME}" --install \
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then
+            SDKMANAGER="$(find "$ANDROID_HOME/cmdline-tools" -type f -name sdkmanager -print -quit)"
+          fi
+          test -x "$SDKMANAGER"
+          echo "Using SDK Manager: $SDKMANAGER"
+          yes | "$SDKMANAGER" --sdk_root="$ANDROID_HOME" --licenses >/dev/null
+          "$SDKMANAGER" --sdk_root="$ANDROID_HOME" --install \
             "platform-tools" "platforms;android-35" "build-tools;35.0.0"
 
       - name: Set up Gradle 8.9
