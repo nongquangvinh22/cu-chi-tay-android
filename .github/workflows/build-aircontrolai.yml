@@ -62,7 +62,7 @@ jobs:
         run: |
           set -euo pipefail
           base64 --decode AirControlAI_v1.1.patch.gz.b64 | gzip -dc > "$RUNNER_TEMP/AirControlAI_v1.1.patch"
-          git apply "$RUNNER_TEMP/AirControlAI_v1.1.patch"
+          git apply --include='app/**' "$RUNNER_TEMP/AirControlAI_v1.1.patch"
           rm -f AirControlAI_v1.1.patch.gz.b64
           echo "Gesture tuning and UI patch applied."
 
