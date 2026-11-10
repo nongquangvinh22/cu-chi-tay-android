@@ -57,6 +57,15 @@ jobs:
           rm -rf "$RUNNER_TEMP/aircontrol-source" "$RUNNER_TEMP/AirControlAI_source.zip.b64" AirControlAI_source.part*.b64
           echo "Project files restored."
 
+      - name: Apply AirControl AI improvements
+        shell: bash
+        run: |
+          set -euo pipefail
+          base64 --decode AirControlAI_v1.1.patch.gz.b64 | gzip -dc > "$RUNNER_TEMP/AirControlAI_v1.1.patch"
+          git apply "$RUNNER_TEMP/AirControlAI_v1.1.patch"
+          rm -f AirControlAI_v1.1.patch.gz.b64
+          echo "Gesture tuning and UI patch applied."
+
       - name: Verify Java and Gradle
         run: |
           java -version
