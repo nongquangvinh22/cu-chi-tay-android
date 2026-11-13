@@ -1,4 +1,4 @@
-name: Build Vivo Gemini Assistant APK
+name: Build Vinh Circle APK
 
 on:
   push:
@@ -60,14 +60,17 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
+      - name: Stage release APK
+        run: cp VivoGeminiAssistant/app/build/outputs/apk/debug/app-debug.apk VivoGeminiAssistant/dist/VinhCircle.apk
+
       - name: Publish GitHub prerelease
         if: github.event_name == 'push' || inputs.publish_release == true
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v0.1.0-alpha.${{ github.run_number }}
-          name: Vivo Gemini Assistant v0.1.0-alpha.${{ github.run_number }}
+          tag_name: v0.2.${{ github.run_number }}
+          name: Vinh Circle v0.2.${{ github.run_number }}
           target_commitish: main
           prerelease: true
           generate_release_notes: true
           fail_on_unmatched_files: true
-          files: VivoGeminiAssistant/app/build/outputs/apk/debug/app-debug.apk
+          files: VivoGeminiAssistant/dist/VinhCircle.apk

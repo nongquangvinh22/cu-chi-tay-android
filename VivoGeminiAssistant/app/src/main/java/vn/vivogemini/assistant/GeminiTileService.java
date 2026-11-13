@@ -1,48 +1,60 @@
 package vn.vivogemini.assistant;
 
-import android.app.PendingIntent;
 import android.content.Intent;
 import android.os.Build;
+import android.provider.Settings;
 import android.service.quicksettings.Tile;
 import android.service.quicksettings.TileService;
+import org.json.JSONObject;
 
-/** Quick Settings tile that opens Gemini only after an explicit user tap. */
+/** Quick Settings tile toggles the gesture bar. It does not read the screen. */
 public class GeminiTileService extends TileService {
     @Override
     public void onStartListening() {
         super.onStartListening();
         Tile tile = getQsTile();
-        if (tile != null) {
-            tile.setLabel("Gemini");
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                tile.setSubtitle("Mở trợ lý Google");
-            }
-            tile.setState(Tile.STATE_INACTIVE);
-            tile.updateTile();
+        if (tile == null) return;
+        boolean on = Store.get(this).optBoolean("barEnabled", false) && Settings.canDrawOverlays(this);
+        tile.setLabel("Vinh Circle");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            tile.setSubtitle(on ? "Thanh đang bật" : "Thanh đang tắt");
         }
+        tile.setState(on ? Tile.STATE_ACTIVE : Tile.STATE_INACTIVE);
+        tile.updateTile();
     }
 
     @Override
     public void onClick() {
         super.onClick();
-        Intent intent = new Intent(this, MainActivity.class)
-                .setAction(MainActivity.ACTION_OPEN_GEMINI)
-                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        if (!Settings.canDrawOverlays(this)) {
+            Intent open = new Intent(this, MainActivity.class);
+            open.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivityAndCollapseCompat(open);
+            return;
+        }
         try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                PendingIntent pendingIntent = PendingIntent.getActivity(
-                        this, 201, intent,
-                        PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-                startActivityAndCollapse(pendingIntent);
+            JSONObject settings = Store.get(this);
+            settings.put("barEnabled", !settings.optBoolean("barEnabled", false));
+            Store.replace(this, settings.toString());
+            BarController.sync(this);
+        } catch (Exception ignored) {
+            BarController.sync(this);
+        }
+        onStartListening();
+    }
+
+    private void startActivityAndCollapseCompat(Intent intent) {
+        try {
+            if (Build.VERSION.SDK_INT >= 34) {
+                startActivityAndCollapse(android.app.PendingIntent.getActivity(
+                        this, 7, intent,
+                        android.app.PendingIntent.FLAG_UPDATE_CURRENT | android.app.PendingIntent.FLAG_IMMUTABLE));
             } else {
                 startActivityAndCollapse(intent);
             }
         } catch (Exception ex) {
-            Intent fallback = getPackageManager().getLaunchIntentForPackage(getPackageName());
-            if (fallback != null) {
-                fallback.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(fallback);
-            }
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
         }
     }
 }

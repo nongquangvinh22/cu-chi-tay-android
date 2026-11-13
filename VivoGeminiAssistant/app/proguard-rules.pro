@@ -1,1 +1,1 @@
-# No custom ProGuard rules are required for this alpha build.
+# Debug builds are not minified.

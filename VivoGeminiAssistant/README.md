@@ -1,39 +1,35 @@
-# Vivo Gemini Assistant
+# Vinh Circle
 
 **Bản quyền của Nông Quang Vinh.**
 
-Ứng dụng Android thử nghiệm dành cho Vivo X200 Pro bản nội địa / OriginOS 5, theo hướng không root, ít quyền và không chạy nền thường trực.
+Thanh cử chỉ cho Vivo X200 Pro (OriginOS): gọi Circle to Search, Gemini và Gemini Live, đọc thông báo bằng giọng trên máy. Không root. Không phải ứng dụng của Google hay vivo.
 
-## Tải APK
+## Cài APK
 
-Khi GitHub Actions build thành công, APK sẽ được đính kèm trong mục Releases:
+Tệp đã build:
 
-https://github.com/nongquangvinh22/cu-chi-tay-android/releases/latest/download/app-debug.apk
+`VivoGeminiAssistant/dist/VinhCircle.apk`
 
-Đây là APK debug thử nghiệm, chưa phải bản phát hành chính thức. Hãy chỉ cài khi bạn tin tưởng mã nguồn trong kho. Các bản build sau có thể cần gỡ bản cũ trước khi cài bản mới vì khóa ký debug trên CI có thể thay đổi.
+Hoặc bản phát hành GitHub Actions (tệp `app-debug.apk`).
 
-## Mở project
+Trên máy: cho phép cài nguồn không xác định, cài đè được vì khóa ký gỡ lỗi nằm trong repo.
 
-Mở thư mục VivoGeminiAssistant bằng Android Studio. Chọn JDK 17, Android SDK Platform 35 và Gradle 8.9.
+## Dùng trên X200 Pro
 
-Có thể build bằng lệnh gradle --no-daemon :app:assembleDebug.
+1. Cài ứng dụng Google và Gemini, đăng nhập.
+2. Đặt **Google** làm trợ lý mặc định. Đừng chọn Vinh Circle.
+3. Cấp quyền hiện trên ứng dụng khác, rồi bật thanh.
+4. Giữ thanh để Circle to Search, chạm đúp để Gemini (đổi trong tab Cử chỉ).
+5. Đọc thông báo là tuỳ chọn, tắt sẵn, chỉ đọc app bạn chọn, và không gửi nội dung đi đâu.
 
-APK đầu ra: app/build/outputs/apk/debug/app-debug.apk.
+Phím nguồn vẫn do OriginOS quyết định. Circle to Search chỉ mở được khi ứng dụng Google trên máy có màn hình đó.
 
-## Tính năng MVP
+## Build
 
-- Mở ứng dụng Gemini nếu đã cài; nếu không thì mở Gemini trên web.
-- Đăng ký các intent trợ lý Android chuẩn và yêu cầu vai trò trợ lý mặc định.
-- Quick Settings Tile mở Gemini khi người dùng chủ động chạm.
-- Hướng dẫn chụp ảnh màn hình rồi chia sẻ thủ công sang Google Lens.
-- Không yêu cầu root, Trợ năng, overlay, micro, VPN hoặc dịch vụ nền thường trực.
-- Hiển thị dòng “Bản quyền của Nông Quang Vinh” ở phần đầu và cuối giao diện.
+JDK 17, Android SDK 35, Gradle 8.9.
 
-## Giới hạn
+```
+gradle --no-daemon -p VivoGeminiAssistant :app:assembleDebug
+```
 
-- Giữ nút nguồn do OriginOS quyết định; đăng ký trợ lý không đảm bảo chiếm được phím nguồn.
-- Circle to Search nguyên bản không được triển khai trong APK không root này.
-- Không thể bảo đảm mọi ứng dụng ngân hàng sẽ tương thích; app tránh can thiệp vào app khác và tránh quyền nhạy cảm.
-- Chưa được xác nhận trên thiết bị thật. Cần kiểm tra trên Vivo X200 Pro / OriginOS 5.
-
-Đây là dự án độc lập, không phải sản phẩm chính thức hoặc được bảo trợ bởi Google hay vivo.
+APK: `app/build/outputs/apk/debug/app-debug.apk`.
