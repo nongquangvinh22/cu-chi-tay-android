@@ -62,7 +62,7 @@ public class MainActivity extends Activity {
         if (intent == null) return false;
         String action = intent.getAction();
         return ACTION_OPEN_GEMINI.equals(action) || Intent.ACTION_ASSIST.equals(action)
-                || Intent.ACTION_VOICE_ASSIST.equals(action);
+                || "android.intent.action.VOICE_ASSIST".equals(action);
     }
 
     private void applySystemBars() {
@@ -110,16 +110,16 @@ public class MainActivity extends Activity {
         assistant.addView(text("THAO TÁC HỆ THỐNG", 11, 0xFF5676C8, true));
         gap(assistant, 7);
         assistant.addView(text("Trợ lý mặc định", 18, 0xFF18233A, true));
-        gap(5);
+        gap(assistant, 5);
         assistant.addView(text("Ứng dụng yêu cầu vai trò trợ lý Android. Giữ nút nguồn vẫn phụ thuộc OriginOS.",
                 13, 0xFF667085, false));
-        gap(9);
+        gap(assistant, 9);
         assistantStatus = text("Đang kiểm tra trạng thái…", 13, 0xFF4778E8, true);
         assistant.addView(assistantStatus);
-        gap(10);
+        gap(assistant, 10);
         assistant.addView(button("Đặt làm trợ lý mặc định", 0xFFEAF0FF, 0xFF315FC7,
                 v -> requestAssistantRole()));
-        gap(8);
+        gap(assistant, 8);
         assistant.addView(button("Thêm nút Gemini vào Cài đặt nhanh", 0xFFF0F3F8,
                 0xFF27364F, v -> requestQuickSettingsTile()));
 
