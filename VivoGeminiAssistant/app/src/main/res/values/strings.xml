@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Vivo Gemini Assistant</string>
+    <string name="tile_label">Gemini</string>
+    <string name="tile_description">Mở Gemini nhanh từ Cài đặt nhanh</string>
+</resources>
