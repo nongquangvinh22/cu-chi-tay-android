@@ -56,8 +56,8 @@ jobs:
         if: github.event_name == 'push' || inputs.publish_release == true
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v0.1.0-alpha.\${{ github.run_number }}
-          name: Vivo Gemini Assistant v0.1.0-alpha.\${{ github.run_number }}
+          tag_name: v0.1.0-alpha.${{ github.run_number }}
+          name: Vivo Gemini Assistant v0.1.0-alpha.${{ github.run_number }}
           target_commitish: main
           prerelease: true
           generate_release_notes: true
