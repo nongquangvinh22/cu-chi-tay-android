@@ -1,10 +1,15 @@
 # Vinh Circle
 
-Phiên bản mã nguồn: 0.4.2
+Phiên bản mã nguồn: 0.4.3
 
 **Bản quyền của Nông Quang Vinh.**
 
 Trợ lý thao tác nhanh cho Vivo X200 Pro / OriginOS, lấy cảm hứng từ giao diện Circle Bar trong tài liệu tham khảo. Không root. Không phải ứng dụng do Google hoặc vivo phát hành.
+
+## Thay đổi ở 0.4.3
+
+- Sửa lỗi JavaScript trùng tên biến trong thành phần thanh xem trước, khiến WebView không khởi chạy và app hiện màn hình đen.
+- Thêm kiểm tra cú pháp JavaScript nhúng trước khi build APK.
 
 ## Thay đổi ở 0.4.2
 
