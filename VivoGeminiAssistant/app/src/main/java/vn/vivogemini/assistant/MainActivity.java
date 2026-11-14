@@ -11,14 +11,15 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.Settings;
-import android.view.Gravity;
-import android.view.View;
 import android.webkit.JavascriptInterface;
+import android.webkit.ConsoleMessage;
+import android.webkit.WebChromeClient;
+import android.webkit.WebResourceError;
+import android.util.Log;
+import android.widget.Toast;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.FrameLayout;
-import android.widget.TextView;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import java.util.ArrayList;
@@ -32,47 +33,77 @@ public class MainActivity extends Activity {
     private WebView web;
     private Speaker speaker;
     private final Handler main = new Handler(Looper.getMainLooper());
+    private boolean uiErrorShown;
 
     @Override
     protected void onCreate(Bundle state) {
         super.onCreate(state);
         speaker = new Speaker(this);
+
         web = new WebView(this);
         web.setBackgroundColor(Color.parseColor("#120E24"));
+        web.setClickable(true);
+        web.setFocusable(true);
         web.getSettings().setJavaScriptEnabled(true);
         web.getSettings().setDomStorageEnabled(true);
         web.getSettings().setAllowFileAccess(true);
         web.addJavascriptInterface(new Bridge(), "VinhNative");
+
+        web.setWebChromeClient(new WebChromeClient() {
+            @Override
+            public boolean onConsoleMessage(ConsoleMessage message) {
+                if (message.messageLevel() == ConsoleMessage.MessageLevel.ERROR) {
+                    reportUiProblem("Lỗi giao diện: " + message.message()
+                            + " (" + message.sourceId() + ":" + message.lineNumber() + ")");
+                }
+                return true;
+            }
+        });
+
         web.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
                 return request.getUrl() == null || !"file".equals(request.getUrl().getScheme());
             }
+
+            @Override
+            public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
+                super.onReceivedError(view, request, error);
+                if (request.isForMainFrame()) {
+                    reportUiProblem("Không tải được giao diện: " + error.getDescription());
+                }
+            }
+
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                super.onPageFinished(view, url);
+                view.evaluateJavascript(
+                        "(function(){var r=document.getElementById('root');"
+                                + "return r && r.childElementCount > 0 ? 'ready' : 'empty';})()",
+                        value -> {
+                            if ("\"empty\"".equals(value)) {
+                                reportUiProblem("Giao diện chưa khởi tạo. Hãy gửi ảnh màn hình lỗi.");
+                            }
+                        });
+            }
         });
 
-        FrameLayout frame = new FrameLayout(this);
-        frame.setBackgroundColor(Color.rgb(17, 14, 44));
-        frame.addView(web, new FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
-
-        TextView watermark = new TextView(this);
-        watermark.setText("BẢN QUYỀN  •  NÔNG QUANG VINH");
-        watermark.setTextColor(0x55FFFFFF);
-        watermark.setTextSize(22);
-        watermark.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
-        watermark.setGravity(Gravity.CENTER);
-        watermark.setRotation(-28f);
-        watermark.setAlpha(0.22f);
-        watermark.setClickable(false);
-        watermark.setFocusable(false);
-        watermark.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
-        FrameLayout.LayoutParams markParams = new FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT,
-                Gravity.CENTER);
-        frame.addView(watermark, markParams);
-
-        setContentView(frame);
+        setContentView(web);
+        web.requestFocus();
         web.loadUrl("file:///android_asset/www/phone/index.html");
+    }
+
+    private void reportUiProblem(String message) {
+        String safe = message == null ? "Lỗi giao diện không xác định." : message;
+        if (safe.length() > 220) safe = safe.substring(0, 220);
+        final String display = safe;
+        Log.e("VinhCircle-WebView", display);
+        main.post(() -> {
+            if (!uiErrorShown) {
+                uiErrorShown = true;
+                Toast.makeText(MainActivity.this, display, Toast.LENGTH_LONG).show();
+            }
+        });
     }
 
     private int dp(int value) {
@@ -110,6 +141,9 @@ public class MainActivity extends Activity {
     }
 
     private final class Bridge {
+        @JavascriptInterface
+        public void reportUiError(String message) { reportUiProblem(message); }
+
         @JavascriptInterface
         public String getSettings() {
             return Store.get(MainActivity.this).toString();
