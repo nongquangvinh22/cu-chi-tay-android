@@ -19,27 +19,35 @@ public final class Launcher {
     private Launcher() {}
 
     public static void circle(Context context) {
-        if (component(context, GOOGLE, "com.google.android.apps.search.omnient.OmnientActivity")) return;
-        if (launchPackage(context, GOOGLE)) {
-            toast(context, "Đã mở Google. Circle to Search nguyên bản vẫn cần được hỗ trợ và bật ở cấp hệ thống.");
-            return;
+        try {
+            Intent capture = new Intent(context, CircleCaptureActivity.class);
+            capture.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            context.startActivity(capture);
+        } catch (Exception ex) {
+            toast(context,
+                    "Không mở được màn hình khoanh vùng. Hãy thêm nút Khoanh vùng trong Cài đặt nhanh rồi thử lại.");
         }
-        toast(context, "Không tìm thấy ứng dụng Google. Hãy cài/cập nhật Google và kiểm tra tính năng Circle to Search của OriginOS.");
     }
 
     public static void gemini(Context context) {
         if (launchPackage(context, BARD)) return;
-        if (assist(context)) return;
-        toast(context, "Chưa tìm thấy ứng dụng Gemini. Hãy cài Gemini hoặc đặt Google làm trợ lý mặc định.");
+        if (view(context, "https://gemini.google.com/app")) {
+            toast(context, "Đang mở Gemini trên web vì chưa tìm thấy ứng dụng Gemini.");
+            return;
+        }
+        toast(context, "Chưa mở được Gemini. Hãy kiểm tra kết nối Internet hoặc cài ứng dụng Gemini.");
     }
 
     public static void geminiLive(Context context) {
         if (launchPackage(context, BARD)) {
-            toast(context, "Đã mở Gemini. Chọn Live trong ứng dụng Gemini nếu tài khoản và thiết bị hỗ trợ.");
+            toast(context, "Đã mở Gemini. Chọn Live trong ứng dụng nếu tài khoản và thiết bị hỗ trợ.");
             return;
         }
-        if (assist(context)) return;
-        toast(context, "Hãy cài ứng dụng Gemini để dùng Gemini Live.");
+        if (view(context, "https://gemini.google.com/app")) {
+            toast(context, "Đã mở Gemini trên web. Gemini Live có thể cần ứng dụng và thiết bị được hỗ trợ.");
+            return;
+        }
+        toast(context, "Chưa mở được Gemini. Hãy kiểm tra kết nối Internet hoặc cài ứng dụng Gemini.");
     }
 
     public static void translate(Context context) {
