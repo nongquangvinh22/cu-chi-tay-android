@@ -11,7 +11,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.widget.TextView;
 
-/** Routes the Android assistant gesture into the native Vinh AI panel. */
+/** Routes the Android assistant gesture to the installed Gemini app. */
 final class VinhVoiceInteractionSession extends VoiceInteractionSession {
     VinhVoiceInteractionSession(Context context) {
         super(context);
@@ -20,7 +20,7 @@ final class VinhVoiceInteractionSession extends VoiceInteractionSession {
     @Override
     public View onCreateContentView() {
         TextView view = new TextView(getContext());
-        view.setText("Đang mở Vinh AI…");
+        view.setText("Đang mở Gemini…");
         view.setTextSize(14);
         view.setGravity(Gravity.CENTER);
         view.setPadding(24, 18, 24, 18);
