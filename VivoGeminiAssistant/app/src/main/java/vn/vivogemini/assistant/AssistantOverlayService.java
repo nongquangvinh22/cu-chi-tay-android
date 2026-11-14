@@ -16,6 +16,8 @@ import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
 import android.os.IBinder;
+import android.os.Handler;
+import android.os.Looper;
 import android.provider.AlarmClock;
 import android.provider.Settings;
 import android.text.InputType;
@@ -63,6 +65,7 @@ public class AssistantOverlayService extends Service {
     private LinearLayout keyBox;
     private final JSONArray history = new JSONArray();
     private final ExecutorService worker = Executors.newSingleThreadExecutor();
+    private final Handler mainHandler = new Handler(Looper.getMainLooper());
     private boolean busy;
 
     public static void show(Context context) {
@@ -329,12 +332,12 @@ public class AssistantOverlayService extends Service {
         worker.execute(() -> {
             try {
                 JSONObject answer = GeminiApi.ask(credential, history);
-                runOnUiThread(() -> handleAnswer(answer));
+                mainHandler.post(() -> handleAnswer(answer));
             } catch (Exception ex) {
                 String detail = ex.getMessage() == null ? "Lỗi kết nối." : ex.getMessage();
-                runOnUiThread(() -> appendMessage("Lỗi", friendlyError(detail)));
+                mainHandler.post(() -> appendMessage("Lỗi", friendlyError(detail)));
             } finally {
-                runOnUiThread(() -> setBusy(false));
+                mainHandler.post(() -> setBusy(false));
             }
         });
     }
