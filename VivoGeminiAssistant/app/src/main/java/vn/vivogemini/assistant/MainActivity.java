@@ -371,7 +371,7 @@ public class MainActivity extends Activity {
         LinearLayout about = card(content);
         about.addView(text("GIỚI THIỆU", 11, true, PRIMARY));
         about.addView(text("Vinh Circle • Trợ lý Android native", 15, true, TEXT), margin(0, 6, 0, 2));
-        about.addView(text("Phiên bản " + "1.0.0" + "\nBản quyền của Nông Quang Vinh", 12, false, MUTED));
+        about.addView(text("Phiên bản " + "1.1.0" + "\nBản quyền của Nông Quang Vinh", 12, false, MUTED));
         Button release = button("Mã nguồn và bản phát hành", false);
         about.addView(release, margin(0, 8, 0, 0));
         release.setOnClickListener(v -> Launcher.release(this));
