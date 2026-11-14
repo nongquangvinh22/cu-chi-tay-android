@@ -4,12 +4,14 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.role.RoleManager;
+import android.app.StatusBarManager;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -254,8 +256,12 @@ public class MainActivity extends Activity {
 
         LinearLayout launchers = card(content);
         launchers.addView(text("ỨNG DỤNG AI", 11, true, PRIMARY));
-        addRowButton(launchers, "Mở ứng dụng Gemini", "Chuyển sang ứng dụng Gemini đã cài trên máy", () -> Launcher.gemini(this));
-        addRowButton(launchers, "Circle to Search", "Phụ thuộc Google app và hỗ trợ của OriginOS", () -> Launcher.circle(this));
+        addRowButton(launchers, "Gọi Gemini / Gemini Live",
+                "Mở ứng dụng Gemini đã cài; chọn Live trong Gemini khi cần",
+                () -> Launcher.geminiLive(this));
+        addRowButton(launchers, "Thêm nút Khoanh vùng tìm kiếm",
+                "Thêm nút vào Cài đặt nhanh để chụp một màn hình, vẽ vòng chọn rồi gửi vùng ảnh sang Lens",
+                () -> requestCircleSearchTile());
 
         LinearLayout state = card(content);
         state.addView(text("TÌNH TRẠNG THIẾT BỊ", 11, true, PRIMARY));
@@ -369,6 +375,41 @@ public class MainActivity extends Activity {
         Button release = button("Mã nguồn và bản phát hành", false);
         about.addView(release, margin(0, 8, 0, 0));
         release.setOnClickListener(v -> Launcher.release(this));
+    }
+
+    private void requestCircleSearchTile() {
+        if (Build.VERSION.SDK_INT < 33) {
+            toast("Mở Cài đặt nhanh, nhấn Sửa và thêm ô “Khoanh vùng” của Vinh Circle.");
+            return;
+        }
+        if (!notificationPermissionGranted()) {
+            requestNotificationPermission();
+            toast("Hãy cho phép thông báo, sau đó nhấn Thêm nút Khoanh vùng một lần nữa.");
+            return;
+        }
+
+        StatusBarManager statusBar = getSystemService(StatusBarManager.class);
+        if (statusBar == null) {
+            toast("Không truy cập được Cài đặt nhanh trên thiết bị này.");
+            return;
+        }
+        try {
+            statusBar.requestAddTileService(
+                    new ComponentName(this, CircleSearchTileService.class),
+                    "Khoanh vùng",
+                    Icon.createWithResource(this, R.drawable.ic_stat),
+                    getMainExecutor(),
+                    result -> {
+                        if (result == StatusBarManager.TILE_ADD_REQUEST_RESULT_TILE_ADDED
+                                || result == StatusBarManager.TILE_ADD_REQUEST_RESULT_TILE_ALREADY_ADDED) {
+                            toast("Đã thêm nút Khoanh vùng vào Cài đặt nhanh.");
+                        } else {
+                            toast("Bạn chưa thêm nút. Có thể mở Cài đặt nhanh và thêm thủ công.");
+                        }
+                    });
+        } catch (Exception ex) {
+            toast("Không thêm được nút nhanh: " + ex.getMessage());
+        }
     }
 
     private void openVinhAi() {
