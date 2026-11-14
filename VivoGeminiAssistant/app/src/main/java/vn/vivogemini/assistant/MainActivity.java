@@ -95,6 +95,9 @@ public class MainActivity extends Activity {
         @JavascriptInterface
         public String setBarEnabled(boolean on) {
             if (!on) return "ok";
+            if (Store.get(MainActivity.this).optBoolean("bankSafeActive", false)) {
+                return "bank_safe";
+            }
             if (!Settings.canDrawOverlays(MainActivity.this)) {
                 main.post(() -> Launcher.overlaySettings(MainActivity.this));
                 return "need_overlay";
@@ -153,6 +156,7 @@ public class MainActivity extends Activity {
                 String blob = (assistant == null ? "" : assistant) + " " + (voice == null ? "" : voice);
                 PackageManager pm = getPackageManager();
                 status.put("overlay", overlay);
+                status.put("bankSafe", Store.get(MainActivity.this).optBoolean("bankSafeActive", false));
                 status.put("listener", listeners != null && listeners.contains(getPackageName()));
                 status.put("google", pm.getLaunchIntentForPackage(Launcher.GOOGLE) != null);
                 status.put("gemini", pm.getLaunchIntentForPackage(Launcher.BARD) != null);
