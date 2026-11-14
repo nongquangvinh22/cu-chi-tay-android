@@ -1,6 +1,6 @@
 # Vinh Circle
 
-Phiên bản mã nguồn: 0.2.6
+Phiên bản mã nguồn: 0.2.7
 
 **Bản quyền của Nông Quang Vinh.**
 
@@ -8,11 +8,7 @@ Thanh cử chỉ cho Vivo X200 Pro (OriginOS): gọi Circle to Search, Gemini v�
 
 ## Cài APK
 
-Tệp đã build:
-
-`VivoGeminiAssistant/dist/VinhCircle.apk`
-
-Hoặc bản phát hành GitHub Actions (tệp `app-debug.apk`).
+Tải APK mới nhất tại trang [GitHub Releases](https://github.com/nongquangvinh22/cu-chi-tay-android/releases). Mỗi bản phát hành có tệp `VinhCircle.apk` riêng. Hãy chọn bản mới nhất theo ngày và phiên bản.
 
 Trên máy: cho phép cài nguồn không xác định, cài đè được vì khóa ký gỡ lỗi nằm trong repo.
 
