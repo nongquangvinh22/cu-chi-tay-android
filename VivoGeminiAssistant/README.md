@@ -1,5 +1,7 @@
 # Vinh Circle
 
+Phiên bản mã nguồn: 0.2.6
+
 **Bản quyền của Nông Quang Vinh.**
 
 Thanh cử chỉ cho Vivo X200 Pro (OriginOS): gọi Circle to Search, Gemini và Gemini Live, đọc thông báo bằng giọng trên máy. Không root. Không phải ứng dụng của Google hay vivo.
@@ -23,6 +25,14 @@ Trên máy: cho phép cài nguồn không xác định, cài đè được vì k
 5. Đọc thông báo là tuỳ chọn, tắt sẵn, chỉ đọc app bạn chọn, và không gửi nội dung đi đâu.
 
 Phím nguồn vẫn do OriginOS quyết định. Circle to Search chỉ mở được khi ứng dụng Google trên máy có màn hình đó.
+
+## Chế độ An toàn ngân hàng
+
+- Thêm ô **Bank an toàn** trong Cài đặt nhanh: vuốt bảng xuống hai lần, chọn Sửa, rồi kéo ô Bank an toàn ra vùng đang dùng.
+- Khi bật, ứng dụng tắt thanh nổi và tắt đọc thông báo. Khi tắt ô này, hai tính năng vẫn giữ trạng thái tắt; bạn phải chủ động bật lại trong ứng dụng.
+- Bật chế độ này trước khi mở ứng dụng ngân hàng. Đây là công tắc tắt tính năng của Vinh Circle, không phải công cụ vượt qua kiểm tra bảo mật.
+- Quyền “hiển thị trên ứng dụng khác” có thể vẫn được cấp trong Android. Một số ngân hàng có thể phát hiện quyền này hoặc ứng dụng đã cài; không thể bảo đảm mọi ngân hàng không cảnh báo. Để giảm quyền hơn nữa, hãy thu hồi quyền overlay trong Cài đặt Android khi không cần thanh nổi.
+- Đọc thông báo tắt mặc định và danh sách ứng dụng được đọc để trống. Không chọn ứng dụng ngân hàng, ví hoặc OTP.
 
 ## Build
 
