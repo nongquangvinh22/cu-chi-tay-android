@@ -335,4 +335,4 @@ public final class CircleCaptureService extends Service {
     public IBinder onBind(Intent intent) {
         return null;
     }
-\n}
+}
