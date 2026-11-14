@@ -1,10 +1,14 @@
 # Vinh Circle
 
-Phiên bản mã nguồn: 0.4.1
+Phiên bản mã nguồn: 0.4.2
 
 **Bản quyền của Nông Quang Vinh.**
 
 Trợ lý thao tác nhanh cho Vivo X200 Pro / OriginOS, lấy cảm hứng từ giao diện Circle Bar trong tài liệu tham khảo. Không root. Không phải ứng dụng do Google hoặc vivo phát hành.
+
+## Thay đổi ở 0.4.2
+
+- Đồng bộ thanh cử chỉ xem trước trong app với thanh nổi thật: chạm một lần chạy `singleAction`; nhấn đúp, nhấn ba và nhấn giữ tiếp tục hoạt động riêng.
 
 ## Thay đổi ở 0.4.1
 
