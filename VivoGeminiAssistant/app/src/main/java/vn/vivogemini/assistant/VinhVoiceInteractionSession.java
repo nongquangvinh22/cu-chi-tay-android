@@ -31,14 +31,9 @@ final class VinhVoiceInteractionSession extends VoiceInteractionSession {
     public void onShow(Bundle args, int showFlags) {
         super.onShow(args, showFlags);
         Context context = getContext();
-        if (Settings.canDrawOverlays(context)) {
-            AssistantOverlayService.show(context);
-            new Handler(Looper.getMainLooper()).postDelayed(this::finish, 220);
-        } else {
-            Intent intent = new Intent(context, MainActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            context.startActivity(intent);
-            new Handler(Looper.getMainLooper()).postDelayed(this::finish, 220);
-        }
+        // Route the Android assistant gesture to the installed Gemini app.
+        // Gemini Live, when available for this account/device, is selected inside Gemini.
+        Launcher.gemini(context);
+        new Handler(Looper.getMainLooper()).postDelayed(this::finish, 220);
     }
 }
