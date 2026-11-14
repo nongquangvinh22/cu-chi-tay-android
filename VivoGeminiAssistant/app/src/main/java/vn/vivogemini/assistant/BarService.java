@@ -21,6 +21,7 @@ import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowInsets;
 import android.view.WindowManager;
 import org.json.JSONObject;
 
@@ -37,6 +38,7 @@ public class BarService extends Service {
     private boolean dragMode;
     private boolean preferLive;
     private boolean hideLandscape;
+    private boolean hideKeyboard;
     private String holdAction = "circle";
     private String doubleAction = "gemini";
     private String tripleAction = "translate";
@@ -48,6 +50,7 @@ public class BarService extends Service {
     private float downX;
     private float downY;
     private float lastX;
+    private float lastY;
     private int taps;
     private final Runnable longPress = () -> {
         longFired = true;
@@ -73,6 +76,7 @@ public class BarService extends Service {
                 downX = event.getRawX();
                 downY = event.getRawY();
                 lastX = downX;
+                lastY = downY;
                 handler.removeCallbacks(longPress);
                 handler.removeCallbacks(flushTaps);
                 if (!dragMode) handler.postDelayed(longPress, holdMs);
@@ -84,12 +88,21 @@ public class BarService extends Service {
                 if (Math.hypot(dx, dy) > dp(12)) {
                     moved = true;
                     handler.removeCallbacks(longPress);
-                    if (dragMode && !vertical) {
-                        float delta = event.getRawX() - lastX;
-                        lastX = event.getRawX();
-                        int travel = Math.max(1, screenWidth() - lp.width);
-                        align = Math.max(0f, Math.min(100f, align + (delta / travel) * 100f));
-                        lp.x = Math.round(travel * (align / 100f));
+                    if (dragMode) {
+                        if (vertical) {
+                            float delta = event.getRawY() - lastY;
+                            lastY = event.getRawY();
+                            int travel = Math.max(1,
+                                    getResources().getDisplayMetrics().heightPixels - lp.height);
+                            align = Math.max(0f, Math.min(100f, align + (delta / travel) * 100f));
+                            lp.y = Math.round(travel * (align / 100f));
+                        } else {
+                            float delta = event.getRawX() - lastX;
+                            lastX = event.getRawX();
+                            int travel = Math.max(1, screenWidth() - lp.width);
+                            align = Math.max(0f, Math.min(100f, align + (delta / travel) * 100f));
+                            lp.x = Math.round(travel * (align / 100f));
+                        }
                         windows.updateViewLayout(bar, lp);
                     }
                 }
@@ -140,7 +153,8 @@ public class BarService extends Service {
 
     private void apply() {
         JSONObject settings = Store.get(this);
-        boolean enabled = settings.optBoolean("barEnabled", false);
+        boolean bankSafe = settings.optBoolean("bankSafeActive", false);
+        boolean enabled = !bankSafe && settings.optBoolean("barEnabled", false);
         if (!enabled || !Settings.canDrawOverlays(this)) {
             removeBar();
             stopSelf();
@@ -150,6 +164,16 @@ public class BarService extends Service {
         if (bar == null) {
             bar = new View(this);
             bar.setOnTouchListener(touch);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                bar.setOnApplyWindowInsetsListener((view, insets) -> {
+                    boolean imeVisible = insets.isVisible(WindowInsets.Type.ime());
+                    boolean landscape = getResources().getConfiguration().orientation
+                            == Configuration.ORIENTATION_LANDSCAPE;
+                    boolean hidden = (hideLandscape && landscape) || (hideKeyboard && imeVisible);
+                    view.setVisibility(hidden ? View.GONE : View.VISIBLE);
+                    return insets;
+                });
+            }
             lp = new WindowManager.LayoutParams(
                     dp(120),
                     dp(18),
@@ -167,6 +191,7 @@ public class BarService extends Service {
         bar.setVisibility(hide ? View.GONE : View.VISIBLE);
         try {
             windows.updateViewLayout(bar, lp);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) bar.requestApplyInsets();
         } catch (Exception ignored) {
             // The view was already removed.
         }
@@ -176,6 +201,7 @@ public class BarService extends Service {
         dragMode = settings.optBoolean("dragMode", false);
         preferLive = settings.optBoolean("preferLive", true);
         hideLandscape = settings.optBoolean("hideLandscape", true);
+        hideKeyboard = settings.optBoolean("hideKeyboard", true);
         holdAction = settings.optString("holdAction", "circle");
         doubleAction = settings.optString("doubleAction", "gemini");
         tripleAction = settings.optString("tripleAction", "translate");
