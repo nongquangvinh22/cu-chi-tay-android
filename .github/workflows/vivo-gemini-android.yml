@@ -4,15 +4,14 @@ on:
   push:
     branches: [main]
     paths:
-      - 'VivoGeminiAssistant/**'
+      - 'VivoGeminiAssistant/app/src/**'
+      - 'VivoGeminiAssistant/app/build.gradle'
+      - 'VivoGeminiAssistant/build.gradle'
+      - 'VivoGeminiAssistant/settings.gradle'
+      - 'VivoGeminiAssistant/gradle.properties'
+      - 'VivoGeminiAssistant/debug.keystore'
       - '.github/workflows/vivo-gemini-android.yml'
   workflow_dispatch:
-    inputs:
-      publish_release:
-        description: Publish the built APK as a GitHub prerelease
-        required: true
-        default: true
-        type: boolean
 
 permissions:
   contents: write
@@ -55,20 +54,29 @@ jobs:
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: VivoGeminiAssistant-debug-apk
+          name: VinhCircle-v0.3.0
           path: VivoGeminiAssistant/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 30
 
-      - name: Stage release APK
-        run: cp VivoGeminiAssistant/app/build/outputs/apk/debug/app-debug.apk VivoGeminiAssistant/dist/VinhCircle.apk
+      - name: Save APK in the repository
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp VivoGeminiAssistant/app/build/outputs/apk/debug/app-debug.apk VivoGeminiAssistant/dist/VinhCircle.apk
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add VivoGeminiAssistant/dist/VinhCircle.apk
+          if ! git diff --cached --quiet; then
+            git commit -m "Build Vinh Circle v0.3.0 APK"
+            git push
+          fi
 
       - name: Publish GitHub prerelease
-        if: github.event_name == 'push' || inputs.publish_release == true
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v0.2.${{ github.run_number }}
-          name: Vinh Circle v0.2.${{ github.run_number }}
+          tag_name: v0.3.0-build-${{ github.run_number }}
+          name: Vinh Circle v0.3.0 (build ${{ github.run_number }})
           target_commitish: main
           prerelease: true
           generate_release_notes: true

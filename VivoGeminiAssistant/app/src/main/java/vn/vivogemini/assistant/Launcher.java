@@ -9,10 +9,10 @@ import android.net.Uri;
 import android.provider.Settings;
 import android.widget.Toast;
 
-/** Best-effort launches. Nothing here reads the screen or uploads text. */
 public final class Launcher {
     static final String GOOGLE = "com.google.android.googlequicksearchbox";
     static final String BARD = "com.google.android.apps.bard";
+    static final String TRANSLATE = "com.google.android.apps.translate";
     static final String RELEASE =
             "https://github.com/nongquangvinh22/cu-chi-tay-android/releases";
 
@@ -20,29 +20,35 @@ public final class Launcher {
 
     public static void circle(Context context) {
         if (component(context, GOOGLE, "com.google.android.apps.search.omnient.OmnientActivity")) return;
-        if (view(context, GOOGLE, "https://lens.google.com/")) return;
-        if (view(context, null, "https://lens.google.com/")) return;
-        toast(context, "Chưa mở được Circle to Search. Hãy cài ứng dụng Google và đăng nhập.");
+        if (launchPackage(context, GOOGLE)) {
+            toast(context, "Đã mở Google. Circle to Search nguyên bản vẫn cần được hỗ trợ và bật ở cấp hệ thống.");
+            return;
+        }
+        toast(context, "Không tìm thấy ứng dụng Google. Hãy cài/cập nhật Google và kiểm tra tính năng Circle to Search của OriginOS.");
     }
 
     public static void gemini(Context context) {
         if (launchPackage(context, BARD)) return;
-        if (view(context, GOOGLE, "https://gemini.google.com/app")) return;
-        if (view(context, null, "https://gemini.google.com/app")) return;
-        toast(context, "Chưa mở được Gemini. Hãy cài ứng dụng Gemini.");
+        if (assist(context)) return;
+        toast(context, "Chưa tìm thấy ứng dụng Gemini. Hãy cài Gemini hoặc đặt Google làm trợ lý mặc định.");
     }
 
     public static void geminiLive(Context context) {
-        if (view(context, BARD, "https://gemini.google.com/live")) return;
-        if (view(context, GOOGLE, "https://gemini.google.com/live")) return;
-        if (view(context, null, "https://gemini.google.com/live")) return;
-        gemini(context);
+        if (launchPackage(context, BARD)) {
+            toast(context, "Đã mở Gemini. Chọn Live trong ứng dụng Gemini nếu tài khoản và thiết bị hỗ trợ.");
+            return;
+        }
+        if (assist(context)) return;
+        toast(context, "Hãy cài ứng dụng Gemini để dùng Gemini Live.");
     }
 
     public static void translate(Context context) {
-        if (view(context, GOOGLE, "https://lens.google.com/")) return;
-        if (view(context, null, "https://lens.google.com/")) return;
-        toast(context, "Chưa mở được Google Lens.");
+        if (launchPackage(context, TRANSLATE)) return;
+        if (launchPackage(context, GOOGLE)) {
+            toast(context, "Đã mở Google. Hãy cài Google Dịch để dịch văn bản hoặc nội dung được chia sẻ.");
+            return;
+        }
+        toast(context, "Chưa tìm thấy Google Dịch. Hãy cài ứng dụng Google Dịch.");
     }
 
     public static void overlaySettings(Context context) {
@@ -84,7 +90,7 @@ public final class Launcher {
     }
 
     public static void release(Context context) {
-        view(context, null, RELEASE);
+        view(context, RELEASE);
     }
 
     public static void run(Context context, String action, boolean live) {
@@ -93,6 +99,7 @@ public final class Launcher {
             if (live) geminiLive(context);
             else gemini(context);
         } else if ("translate".equals(action)) translate(context);
+        else if ("assistant".equals(action)) AssistantActivity.open(context);
     }
 
     private static boolean launchPackage(Context context, String pkg) {
@@ -102,6 +109,17 @@ public final class Launcher {
             if (launch == null) return false;
             launch.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(launch);
+            return true;
+        } catch (Exception ex) {
+            return false;
+        }
+    }
+
+    private static boolean assist(Context context) {
+        try {
+            Intent intent = new Intent(Intent.ACTION_ASSIST);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(intent);
             return true;
         } catch (Exception ex) {
             return false;
@@ -121,10 +139,9 @@ public final class Launcher {
         }
     }
 
-    private static boolean view(Context context, String pkg, String url) {
+    private static boolean view(Context context, String url) {
         try {
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-            if (pkg != null) intent.setPackage(pkg);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(intent);
             return true;

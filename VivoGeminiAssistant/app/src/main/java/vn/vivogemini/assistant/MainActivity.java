@@ -4,24 +4,29 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.Settings;
+import android.view.Gravity;
+import android.view.View;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Button;
+import android.widget.FrameLayout;
+import android.widget.TextView;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 public class MainActivity extends Activity {
     private static final int REQ_NOTIF = 42;
@@ -45,8 +50,52 @@ public class MainActivity extends Activity {
                 return request.getUrl() == null || !"file".equals(request.getUrl().getScheme());
             }
         });
-        setContentView(web);
+
+        FrameLayout frame = new FrameLayout(this);
+        frame.setBackgroundColor(Color.rgb(17, 14, 44));
+        frame.addView(web, new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
+
+        TextView watermark = new TextView(this);
+        watermark.setText("BẢN QUYỀN  •  NÔNG QUANG VINH");
+        watermark.setTextColor(0x55FFFFFF);
+        watermark.setTextSize(22);
+        watermark.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
+        watermark.setGravity(Gravity.CENTER);
+        watermark.setRotation(-28f);
+        watermark.setAlpha(0.22f);
+        watermark.setClickable(false);
+        watermark.setFocusable(false);
+        watermark.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+        FrameLayout.LayoutParams markParams = new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT,
+                Gravity.CENTER);
+        frame.addView(watermark, markParams);
+
+        Button aiButton = new Button(this);
+        aiButton.setText("✦  AI TRỰC TIẾP");
+        aiButton.setAllCaps(false);
+        aiButton.setTextColor(Color.WHITE);
+        aiButton.setTextSize(13);
+        GradientDrawable aiBackground = new GradientDrawable(
+                GradientDrawable.Orientation.LEFT_RIGHT,
+                new int[] {0xFF245CEB, 0xFF8654E8});
+        aiBackground.setCornerRadius(dp(24));
+        aiBackground.setStroke(dp(1), 0x99B8C6FF);
+        aiButton.setBackground(aiBackground);
+        aiButton.setElevation(dp(8));
+        aiButton.setOnClickListener(v -> AssistantActivity.open(MainActivity.this));
+        FrameLayout.LayoutParams aiParams = new FrameLayout.LayoutParams(
+                dp(154), dp(48), Gravity.BOTTOM | Gravity.END);
+        aiParams.setMargins(dp(12), dp(12), dp(16), dp(94));
+        frame.addView(aiButton, aiParams);
+
+        setContentView(frame);
         web.loadUrl("file:///android_asset/www/phone/index.html");
+    }
+
+    private int dp(int value) {
+        return Math.round(value * getResources().getDisplayMetrics().density);
     }
 
     @Override
@@ -114,6 +163,7 @@ public class MainActivity extends Activity {
         @JavascriptInterface public void openGemini() { main.post(() -> Launcher.gemini(MainActivity.this)); }
         @JavascriptInterface public void openGeminiLive() { main.post(() -> Launcher.geminiLive(MainActivity.this)); }
         @JavascriptInterface public void openTranslate() { main.post(() -> Launcher.translate(MainActivity.this)); }
+        @JavascriptInterface public void openAssistant() { main.post(() -> AssistantActivity.open(MainActivity.this)); }
         @JavascriptInterface public void openOverlaySettings() { main.post(() -> Launcher.overlaySettings(MainActivity.this)); }
         @JavascriptInterface public void openListenerSettings() { main.post(() -> Launcher.listenerSettings(MainActivity.this)); }
         @JavascriptInterface public void openAssistantSettings() { main.post(() -> Launcher.assistantSettings(MainActivity.this)); }
