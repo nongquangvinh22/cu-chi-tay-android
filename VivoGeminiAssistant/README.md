@@ -1,10 +1,15 @@
 # Vinh Circle
 
-Phiên bản mã nguồn: 0.4.0
+Phiên bản mã nguồn: 0.4.1
 
 **Bản quyền của Nông Quang Vinh.**
 
 Trợ lý thao tác nhanh cho Vivo X200 Pro / OriginOS, lấy cảm hứng từ giao diện Circle Bar trong tài liệu tham khảo. Không root. Không phải ứng dụng do Google hoặc vivo phát hành.
+
+## Thay đổi ở 0.4.1
+
+- Bổ sung gán hành động cho **chạm một lần**; mặc định là Circle to Search. Có thể chọn Vinh AI nổi, Gemini, Dịch đoạn hoặc Tắt.
+- Giữ nguyên nhấn giữ mở Vinh AI nổi, nhấn đúp mở Gemini và nhấn ba lần mở Dịch đoạn theo cấu hình.
 
 ## Thay đổi ở 0.4.0
 
@@ -40,7 +45,8 @@ Lưu ý: khóa được mã hóa khi lưu trên thiết bị, nhưng bất kỳ 
 - Android yêu cầu người dùng tự cấp quyền overlay; APK không thể tự cấp quyền.
 - Vinh AI nổi là cửa sổ chat trên ứng dụng hiện tại, không tự đọc nội dung ứng dụng phía sau. Muốn AI đọc màn hình cần quyền Accessibility/Screen Capture riêng và xác nhận rõ ràng.
 - Circle to Search nguyên bản vẫn phụ thuộc Google app, firmware và việc bật tính năng hệ thống.
-- Báo thức/hẹn giờ mở giao diện Đồng hồ để người dùng xác nhận.
+- AI có thể yêu cầu mở ứng dụng, đặt báo thức hoặc hẹn giờ qua Android Intent; ứng dụng yêu cầu xác nhận trước khi thực hiện.
+- Bản 0.4.1 chưa có quyền Trợ năng/MediaProjection để AI tự đọc mọi nội dung và bấm/cuộn tùy ý trong ứng dụng khác. Phần đó cần triển khai riêng và chỉ hoạt động sau khi người dùng cấp quyền.
 - OriginOS có thể yêu cầu cho phép tự khởi động và bỏ giới hạn pin để thanh nổi duy trì ổn định.
 
 ## Build

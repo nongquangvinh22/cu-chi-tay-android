@@ -39,7 +39,8 @@ public class BarService extends Service {
     private boolean preferLive;
     private boolean hideLandscape;
     private boolean hideKeyboard;
-    private String holdAction = "circle";
+    private String singleAction = "circle";
+    private String holdAction = "assistant";
     private String doubleAction = "gemini";
     private String tripleAction = "translate";
     private int holdMs = 500;
@@ -61,6 +62,7 @@ public class BarService extends Service {
         taps = 0;
         if (count >= 3) Launcher.run(this, tripleAction, preferLive);
         else if (count == 2) Launcher.run(this, doubleAction, preferLive);
+        else if (count == 1) Launcher.run(this, singleAction, preferLive);
     };
 
     private final ComponentCallbacks callbacks = new ComponentCallbacks() {
@@ -202,7 +204,8 @@ public class BarService extends Service {
         preferLive = settings.optBoolean("preferLive", true);
         hideLandscape = settings.optBoolean("hideLandscape", true);
         hideKeyboard = settings.optBoolean("hideKeyboard", true);
-        holdAction = settings.optString("holdAction", "circle");
+        singleAction = settings.optString("singleAction", "circle");
+        holdAction = settings.optString("holdAction", "assistant");
         doubleAction = settings.optString("doubleAction", "gemini");
         tripleAction = settings.optString("tripleAction", "translate");
         holdMs = Store.num(settings, "holdMs", 500);
