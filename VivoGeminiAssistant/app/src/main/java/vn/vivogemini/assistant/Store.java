@@ -13,7 +13,19 @@ public final class Store {
     public static JSONObject get(Context context) {
         String raw = context.getSharedPreferences(PREF, Context.MODE_PRIVATE).getString(KEY, "{}");
         try {
-            return new JSONObject(raw == null ? "{}" : raw);
+            JSONObject settings = new JSONObject(raw == null ? "{}" : raw);
+            int version = settings.optInt("settingsVersion", 0);
+            if (version < 2) {
+                if ("circle".equals(settings.optString("holdAction", "circle"))) {
+                    settings.put("holdAction", "assistant");
+                }
+                if (settings.optInt("bottomDp", 6) == 6) {
+                    settings.put("bottomDp", 0);
+                }
+                settings.put("settingsVersion", 2);
+                replace(context, settings.toString());
+            }
+            return settings;
         } catch (Exception ex) {
             return new JSONObject();
         }

@@ -222,14 +222,14 @@ public class BarService extends Service {
         }
         bar.setBackground(drawable);
         float opacity = Store.num(settings, "opacity", 85) / 100f;
-        bar.setAlpha(Math.max(0.2f, Math.min(1f, opacity)));
+        bar.setAlpha(Math.max(0f, Math.min(1f, opacity)));
     }
 
     private void place(JSONObject settings) {
         DisplayMetrics metrics = getResources().getDisplayMetrics();
         int widthDp = Store.num(settings, "widthDp", 120);
         int thickDp = Store.num(settings, "thicknessDp", 18);
-        int edge = Store.num(settings, "bottomDp", 6);
+        int edge = Store.num(settings, "bottomDp", 0);
         lp.width = dp(vertical ? thickDp : widthDp);
         lp.height = dp(vertical ? widthDp : thickDp);
         if (!vertical) {

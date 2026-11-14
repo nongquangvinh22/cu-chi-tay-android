@@ -42,6 +42,15 @@
             android:label="Vinh AI" />
 
         <service
+            android:name=".AssistantOverlayService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="User-invoked Gemini chat panel displayed over the currently-used app." />
+        </service>
+
+        <service
             android:name=".BarService"
             android:exported="false"
             android:foregroundServiceType="specialUse">

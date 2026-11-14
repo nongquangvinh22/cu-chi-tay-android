@@ -99,7 +99,7 @@ public final class Launcher {
             if (live) geminiLive(context);
             else gemini(context);
         } else if ("translate".equals(action)) translate(context);
-        else if ("assistant".equals(action)) AssistantActivity.open(context);
+        else if ("assistant".equals(action)) AssistantOverlayService.show(context);
     }
 
     private static boolean launchPackage(Context context, String pkg) {

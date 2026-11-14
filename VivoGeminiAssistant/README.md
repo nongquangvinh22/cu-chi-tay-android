@@ -1,55 +1,47 @@
 # Vinh Circle
 
-Phiên bản mã nguồn: 0.3.0
+Phiên bản mã nguồn: 0.4.0
 
 **Bản quyền của Nông Quang Vinh.**
 
-Ứng dụng trợ lý thao tác nhanh cho Vivo X200 Pro / OriginOS, lấy cảm hứng từ giao diện Circle Bar trong tài liệu tham khảo. Không root. Không phải ứng dụng do Google hoặc vivo phát hành.
+Trợ lý thao tác nhanh cho Vivo X200 Pro / OriginOS, lấy cảm hứng từ giao diện Circle Bar trong tài liệu tham khảo. Không root. Không phải ứng dụng do Google hoặc vivo phát hành.
 
-## Tính năng
+## Thay đổi ở 0.4.0
 
-- Thanh cử chỉ nổi, tùy chỉnh màu, kích thước, vị trí và độ trong suốt.
-- Cử chỉ để mở Google/Circle to Search, Gemini và Google Dịch. Tính năng Circle to Search nguyên bản vẫn phụ thuộc vào bản Google app, firmware và việc bật tính năng hệ thống.
-- **Vinh AI:** màn hình trò chuyện native gọi trực tiếp Gemini API qua HTTPS, không chuyển cuộc trò chuyện sang trình duyệt.
-- Nhận yêu cầu bằng giọng nói tiếng Việt qua dịch vụ nhận dạng giọng nói Android; có thể đọc câu trả lời bằng TTS.
-- Gemini function calling để đề xuất mở ứng dụng, đặt báo thức, hẹn giờ hoặc mở các ứng dụng Google. Người dùng phải xác nhận từng thao tác trước khi ứng dụng thực hiện.
-- Đọc thông báo là tùy chọn, tắt sẵn; chỉ đọc app mà người dùng tự chọn trong giao diện hiện có.
+- Giữ thanh cử chỉ để mở **Vinh AI dạng cửa sổ nổi trên ứng dụng hiện tại**, không chuyển sang màn hình ứng dụng AI riêng.
+- Khung chat Gemini nổi hỗ trợ nhập yêu cầu trực tiếp; thu nhỏ thành bong bóng AI, đóng khi không dùng.
+- Có xác nhận ngay trong khung nổi trước khi mở ứng dụng, đặt báo thức hoặc hẹn giờ.
+- Cử chỉ nhấn giữ mặc định chuyển thành Vinh AI nổi. Có thể đổi lại Circle to Search/Gemini/Dịch trong phần Cử chỉ.
+- Độ hiển thị thanh chỉnh từ 0–100%; mức 0 làm thanh trong suốt hoàn toàn nhưng vùng chạm vẫn hoạt động.
+- Vị trí thanh ngang mặc định sát cạnh dưới (0 dp); chỉnh khoảng cách trong phần Thanh.
 
 ## Cấu hình Vinh AI
 
 1. Tạo khóa Gemini API trong Google AI Studio: https://aistudio.google.com/app/apikey
-2. Mở Vinh Circle, chạm nút **AI TRỰC TIẾP**.
-3. Dán khóa API và chọn **Lưu khóa an toàn**. Khóa được mã hóa bằng Android Keystore và lưu trên máy.
-4. Nhập câu hỏi hoặc chạm **Nói** để yêu cầu bằng giọng tiếng Việt.
+2. Bật quyền **Hiển thị trên ứng dụng khác** cho Vinh Circle.
+3. Trong tab Cử chỉ, chọn **Vinh AI nổi trên màn hình** cho thao tác nhấn giữ (đã chọn mặc định).
+4. Giữ thanh cử chỉ ở cạnh dưới để hiện khung chat nổi.
+5. Dán khóa API vào khung chat một lần, sau đó nhập câu hỏi. Khóa được mã hóa bằng Android Keystore.
 
-Vinh AI dùng model `gemini-3.8-flash` qua Gemini API. API key/API quota là dịch vụ riêng; quyền lợi Google One AI Premium hoặc ứng dụng Gemini không tự động biến thành hạn mức Gemini API. Google có thể tính phí khi vượt mức miễn phí theo tài khoản và khu vực; người dùng tự quản lý hạn mức của khóa.
+Vinh AI gọi Gemini API trực tiếp qua HTTPS, không chuyển cuộc trò chuyện sang trình duyệt. API key/API quota là dịch vụ riêng; người dùng tự quản lý hạn mức của khóa trong Google AI Studio/Cloud.
 
-Lưu ý bảo mật: khóa được mã hóa khi lưu trên thiết bị, nhưng bất kỳ khóa API nào được dùng trực tiếp trong ứng dụng người dùng cuối vẫn có rủi ro bị trích xuất từ thiết bị hoặc tiến trình đang chạy. Hãy đặt hạn mức và theo dõi usage trong Google AI Studio/Cloud.
+Lưu ý: khóa được mã hóa khi lưu trên thiết bị, nhưng bất kỳ khóa API nào được dùng trực tiếp trong ứng dụng người dùng cuối vẫn có rủi ro bị trích xuất từ thiết bị hoặc tiến trình đang chạy. Hãy đặt hạn mức và theo dõi usage.
 
-## Các thao tác hệ thống
+## Vị trí và độ trong suốt của thanh
 
-- Mở ứng dụng: Gemini phân tích tên ứng dụng, Vinh Circle tìm ứng dụng đã cài và mở sau khi người dùng xác nhận.
-- Báo thức/hẹn giờ: ứng dụng gọi Android AlarmClock Intent và đưa người dùng tới giao diện Đồng hồ để xác nhận.
-- Dịch văn bản: có thể chuyển văn bản được người dùng cung cấp sang Google Dịch.
-- Circle to Search: Vinh Circle thử gọi điểm vào Google được hỗ trợ trên máy; nếu firmware không cung cấp điểm vào đó, hãy dùng cử chỉ Circle to Search nguyên bản do Google/OriginOS cung cấp. Ứng dụng bên thứ ba không thể tự cấp quyền hệ thống hoặc bảo đảm thay thế hoàn toàn giao diện Circle to Search của Google.
-- Dịch toàn màn hình: tùy chọn dịch màn hình/overlay của Google phụ thuộc Google app, quyền và phiên bản OriginOS; Vinh Circle không âm thầm chụp hoặc tải màn hình lên máy chủ.
+- Mở tab **Thanh**.
+- **Cách mép dưới = 0 dp** đặt thanh sát đáy màn hình; tăng số dp để đưa thanh lên cao hơn.
+- **Độ hiển thị = 0%** làm thanh không nhìn thấy nhưng cửa sổ vẫn nhận thao tác chạm/nhấn giữ; tăng dần để nhìn thấy rõ hơn.
+- Có thể bật kéo thả để đặt vị trí lệch ngang; tắt kéo thả để sử dụng cử chỉ.
+- Khi thanh hoàn toàn trong suốt, bạn sẽ không nhìn thấy vị trí của nó. Dùng tab Thanh để đưa độ hiển thị lên lại.
 
-## Quyền cần cấp trên máy
+## Giới hạn Android/OriginOS
 
-1. Cài ứng dụng Google và Gemini, đăng nhập.
-2. Đặt Google làm trợ lý mặc định nếu muốn gọi Google Assistant/Gemini qua phím nguồn.
-3. Chỉ bật quyền Hiển thị trên ứng dụng khác nếu muốn dùng thanh nổi.
-4. Quyền đọc thông báo là tùy chọn. Không chọn ứng dụng ngân hàng, ví hoặc OTP.
-5. OriginOS có thể yêu cầu cho phép tự khởi động và bỏ giới hạn pin để thanh nổi duy trì ổn định.
-
-Không có quyền nào được tự cấp bởi APK. Android/OriginOS sẽ hiển thị trang cài đặt để người dùng tự quyết định.
-
-## Chế độ An toàn ngân hàng
-
-- Thêm ô **Bank an toàn** trong Cài đặt nhanh: vuốt bảng xuống hai lần, chọn Sửa, rồi kéo ô Bank an toàn ra vùng đang dùng.
-- Khi bật, ứng dụng tắt thanh nổi và tắt đọc thông báo. Khi tắt ô này, hai tính năng vẫn giữ trạng thái tắt; bạn phải chủ động bật lại trong ứng dụng.
-- Bật chế độ này trước khi mở ứng dụng ngân hàng. Đây là công tắc tắt tính năng của Vinh Circle, không phải công cụ vượt qua kiểm tra bảo mật.
-- Quyền hiển thị trên ứng dụng khác có thể vẫn được Android giữ. Một số ngân hàng có thể phát hiện quyền này hoặc ứng dụng đã cài; không thể bảo đảm mọi ngân hàng không cảnh báo.
+- Android yêu cầu người dùng tự cấp quyền overlay; APK không thể tự cấp quyền.
+- Vinh AI nổi là cửa sổ chat trên ứng dụng hiện tại, không tự đọc nội dung ứng dụng phía sau. Muốn AI đọc màn hình cần quyền Accessibility/Screen Capture riêng và xác nhận rõ ràng.
+- Circle to Search nguyên bản vẫn phụ thuộc Google app, firmware và việc bật tính năng hệ thống.
+- Báo thức/hẹn giờ mở giao diện Đồng hồ để người dùng xác nhận.
+- OriginOS có thể yêu cầu cho phép tự khởi động và bỏ giới hạn pin để thanh nổi duy trì ổn định.
 
 ## Build
 
@@ -60,5 +52,3 @@ gradle --no-daemon -p VivoGeminiAssistant :app:assembleDebug
 ```
 
 APK: `VivoGeminiAssistant/app/build/outputs/apk/debug/app-debug.apk`.
-
-Workflow GitHub Actions sẽ build APK, commit bản build vào `VivoGeminiAssistant/dist/VinhCircle.apk`, đồng thời đính kèm vào GitHub Release.
