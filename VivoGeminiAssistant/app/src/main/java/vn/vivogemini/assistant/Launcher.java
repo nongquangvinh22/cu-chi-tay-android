@@ -14,7 +14,7 @@ public final class Launcher {
     static final String GOOGLE = "com.google.android.googlequicksearchbox";
     static final String BARD = "com.google.android.apps.bard";
     static final String RELEASE =
-            "https://github.com/nongquangvinh22/cu-chi-tay-android/raw/main/VivoGeminiAssistant/dist/VinhCircle.apk";
+            "https://github.com/nongquangvinh22/cu-chi-tay-android/releases";
 
     private Launcher() {}
 
