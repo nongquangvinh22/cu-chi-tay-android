@@ -11,7 +11,17 @@ public final class BarController {
 
     public static void sync(Context context) {
         JSONObject settings = Store.get(context);
-        boolean enabled = settings.optBoolean("barEnabled", false);
+        boolean bankSafe = settings.optBoolean("bankSafeActive", false);
+        if (bankSafe) {
+            try {
+                settings.put("barEnabled", false);
+                settings.put("readEnabled", false);
+                Store.replace(context, settings.toString());
+            } catch (Exception ignored) {
+                // Keep the bar disabled below even if preferences cannot be rewritten.
+            }
+        }
+        boolean enabled = !bankSafe && settings.optBoolean("barEnabled", false);
         if (!enabled || !Settings.canDrawOverlays(context)) {
             context.stopService(new Intent(context, BarService.class));
             return;
