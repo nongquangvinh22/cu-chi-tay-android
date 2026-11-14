@@ -35,6 +35,7 @@ public class SpeakService extends NotificationListenerService {
         if (notification == null) return;
         if ((notification.flags & Notification.FLAG_GROUP_SUMMARY) != 0) return;
         JSONObject settings = Store.get(this);
+        if (settings.optBoolean("bankSafeActive", false)) return;
         if (!settings.optBoolean("readEnabled", false)) return;
         if (!allowed(settings, sbn.getPackageName())) return;
         if (!dayOk(settings) || !timeOk(settings)) return;
