@@ -4,4 +4,5 @@
     <string name="tile_label">Vinh Circle</string>
     <string name="listener_label">Đọc thông báo Vinh Circle</string>
     <string name="bank_safe_tile_label">Bank an toàn</string>
+    <string name="assistant_label">Vinh Circle AI</string>
 </resources>

@@ -1,69 +1,50 @@
-# Vinh Circle
+# Vinh Circle Native
 
-Phiên bản mã nguồn: 0.4.3
+**Phiên bản mã nguồn: 1.0.0**
 
 **Bản quyền của Nông Quang Vinh.**
 
-Trợ lý thao tác nhanh cho Vivo X200 Pro / OriginOS, lấy cảm hứng từ giao diện Circle Bar trong tài liệu tham khảo. Không root. Không phải ứng dụng do Google hoặc vivo phát hành.
+Vinh Circle được viết lại bằng giao diện Android native. Màn hình chính và các trang thiết lập không còn dùng WebView/HTML.
 
-## Thay đổi ở 0.4.3
+## Chức năng
 
-- Sửa lỗi JavaScript trùng tên biến trong thành phần thanh xem trước, khiến WebView không khởi chạy và app hiện màn hình đen.
-- Thêm kiểm tra cú pháp JavaScript nhúng trước khi build APK.
+- Giao diện Android native gồm Trang chủ, Cử chỉ, Thanh và Cài đặt.
+- Cửa sổ Vinh AI nổi trên ứng dụng đang mở.
+- Chọn hành động cho chạm một lần, nhấn giữ, chạm đúp và chạm ba lần.
+- Chỉnh độ dài, độ dày, độ trong suốt, vị trí, hướng và màu của thanh.
+- Có thể đăng ký Vinh Circle làm trợ lý mặc định Android nếu hệ điều hành cho phép.
+- Có thể gọi trợ lý hiện được đặt mặc định bằng hành động trợ lý của Android.
+- Chat AI dùng Gemini Developer API; khóa được mã hóa bằng Android Keystore.
+- AI có thể đề xuất mở ứng dụng, mở Google Dịch, đặt báo thức hoặc hẹn giờ. Ứng dụng hỏi xác nhận trước thao tác.
 
-## Thay đổi ở 0.4.2
+## Thiết lập lần đầu
 
-- Đồng bộ thanh cử chỉ xem trước trong app với thanh nổi thật: chạm một lần chạy `singleAction`; nhấn đúp, nhấn ba và nhấn giữ tiếp tục hoạt động riêng.
+1. Mở Vinh Circle.
+2. Vào **Cài đặt & quyền** và cấp **Hiển thị trên ứng dụng khác**.
+3. Vào **Cài đặt & quyền → Thiết lập / thay khóa API** để thêm khóa Gemini API.
+4. Quay lại Trang chủ và nhấn **Mở Vinh AI nổi**.
+5. Vào **Cử chỉ** để gán hành động cho từng kiểu chạm.
+6. Vào **Thanh** để chỉnh vị trí, kích thước và độ trong suốt.
+7. Nếu muốn gọi Vinh Circle bằng thao tác trợ lý hệ thống, nhấn **Đặt Vinh Circle làm trợ lý mặc định**. Việc chọn trợ lý do Android/OriginOS hiển thị và quyết định.
 
-## Thay đổi ở 0.4.1
+## AI và quyền hệ thống
 
-- Bổ sung gán hành động cho **chạm một lần**; mặc định là Circle to Search. Có thể chọn Vinh AI nổi, Gemini, Dịch đoạn hoặc Tắt.
-- Giữ nguyên nhấn giữ mở Vinh AI nổi, nhấn đúp mở Gemini và nhấn ba lần mở Dịch đoạn theo cấu hình.
-
-## Thay đổi ở 0.4.0
-
-- Giữ thanh cử chỉ để mở **Vinh AI dạng cửa sổ nổi trên ứng dụng hiện tại**, không chuyển sang màn hình ứng dụng AI riêng.
-- Khung chat Gemini nổi hỗ trợ nhập yêu cầu trực tiếp; thu nhỏ thành bong bóng AI, đóng khi không dùng.
-- Có xác nhận ngay trong khung nổi trước khi mở ứng dụng, đặt báo thức hoặc hẹn giờ.
-- Cử chỉ nhấn giữ mặc định chuyển thành Vinh AI nổi. Có thể đổi lại Circle to Search/Gemini/Dịch trong phần Cử chỉ.
-- Độ hiển thị thanh chỉnh từ 0–100%; mức 0 làm thanh trong suốt hoàn toàn nhưng vùng chạm vẫn hoạt động.
-- Vị trí thanh ngang mặc định sát cạnh dưới (0 dp); chỉnh khoảng cách trong phần Thanh.
-
-## Cấu hình Vinh AI
-
-1. Tạo khóa Gemini API trong Google AI Studio: https://aistudio.google.com/app/apikey
-2. Bật quyền **Hiển thị trên ứng dụng khác** cho Vinh Circle.
-3. Trong tab Cử chỉ, chọn **Vinh AI nổi trên màn hình** cho thao tác nhấn giữ (đã chọn mặc định).
-4. Giữ thanh cử chỉ ở cạnh dưới để hiện khung chat nổi.
-5. Dán khóa API vào khung chat một lần, sau đó nhập câu hỏi. Khóa được mã hóa bằng Android Keystore.
-
-Vinh AI gọi Gemini API trực tiếp qua HTTPS, không chuyển cuộc trò chuyện sang trình duyệt. API key/API quota là dịch vụ riêng; người dùng tự quản lý hạn mức của khóa trong Google AI Studio/Cloud.
-
-Lưu ý: khóa được mã hóa khi lưu trên thiết bị, nhưng bất kỳ khóa API nào được dùng trực tiếp trong ứng dụng người dùng cuối vẫn có rủi ro bị trích xuất từ thiết bị hoặc tiến trình đang chạy. Hãy đặt hạn mức và theo dõi usage.
-
-## Vị trí và độ trong suốt của thanh
-
-- Mở tab **Thanh**.
-- **Cách mép dưới = 0 dp** đặt thanh sát đáy màn hình; tăng số dp để đưa thanh lên cao hơn.
-- **Độ hiển thị = 0%** làm thanh không nhìn thấy nhưng cửa sổ vẫn nhận thao tác chạm/nhấn giữ; tăng dần để nhìn thấy rõ hơn.
-- Có thể bật kéo thả để đặt vị trí lệch ngang; tắt kéo thả để sử dụng cử chỉ.
-- Khi thanh hoàn toàn trong suốt, bạn sẽ không nhìn thấy vị trí của nó. Dùng tab Thanh để đưa độ hiển thị lên lại.
-
-## Giới hạn Android/OriginOS
-
-- Android yêu cầu người dùng tự cấp quyền overlay; APK không thể tự cấp quyền.
-- Vinh AI nổi là cửa sổ chat trên ứng dụng hiện tại, không tự đọc nội dung ứng dụng phía sau. Muốn AI đọc màn hình cần quyền Accessibility/Screen Capture riêng và xác nhận rõ ràng.
-- Circle to Search nguyên bản vẫn phụ thuộc Google app, firmware và việc bật tính năng hệ thống.
-- AI có thể yêu cầu mở ứng dụng, đặt báo thức hoặc hẹn giờ qua Android Intent; ứng dụng yêu cầu xác nhận trước khi thực hiện.
-- Bản 0.4.1 chưa có quyền Trợ năng/MediaProjection để AI tự đọc mọi nội dung và bấm/cuộn tùy ý trong ứng dụng khác. Phần đó cần triển khai riêng và chỉ hoạt động sau khi người dùng cấp quyền.
-- OriginOS có thể yêu cầu cho phép tự khởi động và bỏ giới hạn pin để thanh nổi duy trì ổn định.
+- Mô hình API mặc định: \`gemini-3.8-flash\` qua Gemini Developer API.
+- Người dùng tự quản lý khóa API, hạn mức và các điều khoản/dịch vụ của Google.
+- Không chia sẻ khóa API, mật khẩu, mã OTP hoặc thông tin thanh toán.
+- Vinh Circle không tự chụp màn hình hoặc đọc nội dung ứng dụng khác.
+- Trợ lý mặc định được đăng ký qua Android \`VoiceInteractionService\`; khả năng chọn và gọi bằng nút/cử chỉ hệ thống phụ thuộc OriginOS, chính sách thiết bị và việc người dùng tự chọn Vinh Circle làm trợ lý mặc định.
+- Overlay cần người dùng tự cấp quyền hiển thị trên ứng dụng khác.
+- Circle to Search chính hãng cần Google app, firmware và hỗ trợ của thiết bị.
+- Gemini Live cần ứng dụng Gemini, tài khoản và khu vực hỗ trợ.
+- Ứng dụng bên thứ ba không thể sao chép quyền AI độc quyền của vivo hoặc bảo đảm tất cả khả năng như trợ lý hệ thống tích hợp sẵn.
 
 ## Build
 
-JDK 17, Android SDK 35, Gradle 8.9.
+Yêu cầu JDK 17, Android SDK 35 và Gradle 8.9.
 
-```bash
+\`\`\`bash
 gradle --no-daemon -p VivoGeminiAssistant :app:assembleDebug
-```
+\`\`\`
 
-APK: `VivoGeminiAssistant/app/build/outputs/apk/debug/app-debug.apk`.
+APK được tạo tại \`VivoGeminiAssistant/app/build/outputs/apk/debug/app-debug.apk\`.

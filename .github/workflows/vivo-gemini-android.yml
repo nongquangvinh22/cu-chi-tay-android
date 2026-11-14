@@ -48,51 +48,13 @@ jobs:
           "$SDKMANAGER" --sdk_root="$ANDROID_HOME" --install \
             "platform-tools" "platforms;android-35" "build-tools;35.0.0"
 
-      - name: Validate embedded WebView JavaScript
+      - name: Verify native Android interface
         shell: bash
         run: |
           set -euo pipefail
-          python3 - <<'PY'
-          from html.parser import HTMLParser
-          from pathlib import Path
-
-          class InlineScripts(HTMLParser):
-              def __init__(self):
-                  super().__init__()
-                  self.in_script = False
-                  self.external = False
-                  self.current = []
-                  self.scripts = []
-
-              def handle_starttag(self, tag, attrs):
-                  if tag.lower() == "script":
-                      attrs = dict(attrs)
-                      self.in_script = True
-                      self.external = "src" in attrs
-                      self.current = []
-
-              def handle_data(self, data):
-                  if self.in_script and not self.external:
-                      self.current.append(data)
-
-              def handle_endtag(self, tag):
-                  if tag.lower() == "script" and self.in_script:
-                      if not self.external:
-                          self.scripts.append("".join(self.current))
-                      self.in_script = False
-                      self.external = False
-                      self.current = []
-
-          source = Path("VivoGeminiAssistant/app/src/main/assets/www/phone/index.html").read_text(encoding="utf-8")
-          parser = InlineScripts()
-          parser.feed(source)
-          scripts = [item for item in parser.scripts if item.strip()]
-          if not scripts:
-              raise SystemExit("No inline JavaScript found")
-          Path("/tmp/vinh-circle-inline.js").write_text("\n;\n".join(scripts), encoding="utf-8")
-          print(f"Extracted {len(scripts)} inline script(s)")
-          PY
-          node --check /tmp/vinh-circle-inline.js
+          test -s VivoGeminiAssistant/app/src/main/java/vn/vivogemini/assistant/MainActivity.java
+          ! grep -q 'android.webkit.WebView' VivoGeminiAssistant/app/src/main/java/vn/vivogemini/assistant/MainActivity.java
+          test -s VivoGeminiAssistant/app/src/main/res/xml/voice_interaction_service.xml
 
       - name: Build debug APK
         run: gradle --no-daemon --stacktrace -p VivoGeminiAssistant :app:assembleDebug
@@ -100,7 +62,7 @@ jobs:
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: VinhCircle-v0.4.4
+          name: VinhCircle-native-1.0.0
           path: VivoGeminiAssistant/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 30
@@ -114,15 +76,15 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add VivoGeminiAssistant/dist/VinhCircle.apk
           if ! git diff --cached --quiet; then
-            git commit -m "Build Vinh Circle v0.4.4 APK"
+            git commit -m "Build Vinh Circle Native v1.0.0 APK"
             git push
           fi
 
       - name: Publish GitHub prerelease
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v0.4.4-build-${{ github.run_number }}
-          name: Vinh Circle v0.4.4 (build ${{ github.run_number }})
+          tag_name: v1.0.0-build-${{ github.run_number }}
+          name: Vinh Circle Native v1.0.0 (build ${{ github.run_number }})
           target_commitish: main
           prerelease: true
           generate_release_notes: true
