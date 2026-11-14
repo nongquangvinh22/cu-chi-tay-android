@@ -1,5 +1,6 @@
 package vn.vivogemini.assistant;
 
+import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -74,7 +75,7 @@ public final class CircleCaptureService extends Service {
             return START_NOT_STICKY;
         }
 
-        int resultCode = intent.getIntExtra(EXTRA_RESULT_CODE, RESULT_CANCELED);
+        int resultCode = intent.getIntExtra(EXTRA_RESULT_CODE, Activity.RESULT_CANCELED);
         Intent resultData;
         if (Build.VERSION.SDK_INT >= 33) {
             resultData = intent.getParcelableExtra(EXTRA_RESULT_DATA, Intent.class);
@@ -83,7 +84,7 @@ public final class CircleCaptureService extends Service {
             resultData = intent.getParcelableExtra(EXTRA_RESULT_DATA);
         }
 
-        if (resultCode != ActivityResult.RESULT_OK || resultData == null) {
+        if (resultCode != Activity.RESULT_OK || resultData == null) {
             fail("Thiếu xác nhận chụp màn hình. Hãy thử lại.");
             return START_NOT_STICKY;
         }
@@ -334,9 +335,4 @@ public final class CircleCaptureService extends Service {
     public IBinder onBind(Intent intent) {
         return null;
     }
-
-    /** Avoids shadowing Activity.RESULT_OK in the Service class. */
-    private static final class ActivityResult {
-        static final int RESULT_OK = -1;
-    }
-}
+\n}
