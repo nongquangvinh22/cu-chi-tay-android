@@ -61,7 +61,15 @@ class GestureAccessibilityService : AccessibilityService() {
                 path.lineTo(w * 0.8f, h * 0.5f)
             }
         }
-        val stroke = GestureDescription.StrokeDescription(path, 0L, 160L)
+
+        // Giá trị cao hơn = vuốt nhanh hơn (thời lượng ngắn hơn).
+        // Mặc định 67% tương đương khoảng 160 ms như bản cũ.
+        val speed = getSharedPreferences(Prefs.NAME, MODE_PRIVATE)
+            .getInt(Prefs.SCROLL_SPEED, Prefs.DEFAULT_SCROLL_SPEED)
+            .coerceIn(0, 100)
+        val durationMs = (320f - speed * 2.4f).toLong().coerceIn(80L, 320L)
+
+        val stroke = GestureDescription.StrokeDescription(path, 0L, durationMs)
         val gesture = GestureDescription.Builder().addStroke(stroke).build()
         dispatchGesture(gesture, null, null)
     }
