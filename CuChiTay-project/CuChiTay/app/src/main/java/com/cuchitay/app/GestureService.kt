@@ -34,9 +34,9 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
 /**
- * Dịch vụ nền (foreground, loại camera): đọc camera trước -> MediaPipe nhận diện
- * bàn tay -> GestureEngine nhận ra cử chỉ -> nhờ GestureAccessibilityService thực hiện.
- * Ảnh camera chỉ xử lý tại chỗ trong bộ nhớ, không lưu, không gửi đi đâu.
+ * Dịch vụ nền: nhận diện bàn tay qua camera trước rồi gửi thao tác
+ * vuốt/chụp màn hình tới Accessibility Service.
+ * Ảnh chỉ xử lý trong bộ nhớ, không lưu hoặc gửi đi nơi khác.
  */
 class GestureService : LifecycleService() {
 
@@ -142,7 +142,6 @@ class GestureService : LifecycleService() {
                 provider.unbindAll()
                 provider.bindToLifecycle(this, CameraSelector.DEFAULT_FRONT_CAMERA, a)
 
-                // Theo dõi hướng cầm máy để ảnh luôn thẳng đứng
                 orientationListener = object : OrientationEventListener(this) {
                     override fun onOrientationChanged(orientation: Int) {
                         if (orientation == ORIENTATION_UNKNOWN) return
@@ -168,19 +167,19 @@ class GestureService : LifecycleService() {
             val raw = proxy.toBitmap()
             val rotation = proxy.imageInfo.rotationDegrees
             val upright: Bitmap = if (rotation != 0) {
-                val m = Matrix()
-                m.postRotate(rotation.toFloat())
-                Bitmap.createBitmap(raw, 0, 0, raw.width, raw.height, m, true)
+                val matrix = Matrix()
+                matrix.postRotate(rotation.toFloat())
+                Bitmap.createBitmap(raw, 0, 0, raw.width, raw.height, matrix, true)
             } else {
                 raw
             }
             frameAspect = upright.width.toFloat() / upright.height.toFloat()
 
-            var ts = SystemClock.uptimeMillis()
-            if (ts <= lastTimestamp) ts = lastTimestamp + 1
-            lastTimestamp = ts
+            var timestamp = SystemClock.uptimeMillis()
+            if (timestamp <= lastTimestamp) timestamp = lastTimestamp + 1
+            lastTimestamp = timestamp
 
-            landmarker.detectAsync(BitmapImageBuilder(upright).build(), ts)
+            landmarker.detectAsync(BitmapImageBuilder(upright).build(), timestamp)
         } catch (e: Exception) {
             Log.e(TAG, "Lỗi xử lý khung hình", e)
         } finally {
@@ -200,16 +199,18 @@ class GestureService : LifecycleService() {
     }
 
     private fun applyPrefs() {
-        engine.swipeEnabled = prefs.getBoolean(Prefs.SWIPE, true)
+        engine.swipeUpEnabled = prefs.getBoolean(Prefs.SWIPE_UP, true)
+        engine.swipeDownEnabled = prefs.getBoolean(Prefs.SWIPE_DOWN, true)
+        engine.swipeLeftEnabled = prefs.getBoolean(Prefs.SWIPE_LEFT, false)
+        engine.swipeRightEnabled = prefs.getBoolean(Prefs.SWIPE_RIGHT, false)
         engine.grabEnabled = prefs.getBoolean(Prefs.GRAB, true)
-        engine.horizontalEnabled = prefs.getBoolean(Prefs.HORIZONTAL, false)
         engine.invertVertical = prefs.getBoolean(Prefs.INVERT, false)
         engine.sensitivity = 0.6f + prefs.getInt(Prefs.SENS, 50) / 100f * 0.9f
     }
 
     private fun buildNotification(): Notification {
-        val nm = getSystemService(NotificationManager::class.java)
-        nm.createNotificationChannel(
+        val manager = getSystemService(NotificationManager::class.java)
+        manager.createNotificationChannel(
             NotificationChannel(CHANNEL_ID, "Điều khiển bằng cử chỉ", NotificationManager.IMPORTANCE_LOW)
         )
         val stopIntent = PendingIntent.getService(
