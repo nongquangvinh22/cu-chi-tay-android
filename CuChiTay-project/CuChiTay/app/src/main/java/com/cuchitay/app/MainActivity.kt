@@ -31,6 +31,8 @@ class MainActivity : Activity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        migrateLegacyGesturePrefs()
+
         tvCam = findViewById(R.id.tvCam)
         tvA11y = findViewById(R.id.tvA11y)
         tvSens = findViewById(R.id.tvSens)
@@ -49,9 +51,11 @@ class MainActivity : Activity() {
             )
         }
 
-        bindSwitch(R.id.swSwipe, Prefs.SWIPE, true)
+        bindSwitch(R.id.swSwipeUp, Prefs.SWIPE_UP, true)
+        bindSwitch(R.id.swSwipeDown, Prefs.SWIPE_DOWN, true)
+        bindSwitch(R.id.swSwipeLeft, Prefs.SWIPE_LEFT, false)
+        bindSwitch(R.id.swSwipeRight, Prefs.SWIPE_RIGHT, false)
         bindSwitch(R.id.swGrab, Prefs.GRAB, true)
-        bindSwitch(R.id.swHorizontal, Prefs.HORIZONTAL, false)
         bindSwitch(R.id.swInvert, Prefs.INVERT, false)
 
         val sensitivitySeek = findViewById<SeekBar>(R.id.seekSens)
@@ -86,6 +90,27 @@ class MainActivity : Activity() {
         btnToggle.setOnClickListener { toggle() }
     }
 
+    /**
+     * Chuyển các thiết lập gộp của v1.1 sang các công tắc riêng.
+     * Nếu đã có thiết lập mới thì không ghi đè lựa chọn của người dùng.
+     */
+    private fun migrateLegacyGesturePrefs() {
+        val edit = prefs.edit()
+        if (!prefs.contains(Prefs.SWIPE_UP)) {
+            edit.putBoolean(Prefs.SWIPE_UP, prefs.getBoolean(Prefs.SWIPE, true))
+        }
+        if (!prefs.contains(Prefs.SWIPE_DOWN)) {
+            edit.putBoolean(Prefs.SWIPE_DOWN, prefs.getBoolean(Prefs.SWIPE, true))
+        }
+        if (!prefs.contains(Prefs.SWIPE_LEFT)) {
+            edit.putBoolean(Prefs.SWIPE_LEFT, prefs.getBoolean(Prefs.HORIZONTAL, false))
+        }
+        if (!prefs.contains(Prefs.SWIPE_RIGHT)) {
+            edit.putBoolean(Prefs.SWIPE_RIGHT, prefs.getBoolean(Prefs.HORIZONTAL, false))
+        }
+        edit.apply()
+    }
+
     override fun onResume() {
         super.onResume()
         refresh()
@@ -101,9 +126,9 @@ class MainActivity : Activity() {
     }
 
     private fun bindSwitch(id: Int, key: String, default: Boolean) {
-        val sw = findViewById<Switch>(id)
-        sw.isChecked = prefs.getBoolean(key, default)
-        sw.setOnCheckedChangeListener { _, checked ->
+        val switch = findViewById<Switch>(id)
+        switch.isChecked = prefs.getBoolean(key, default)
+        switch.setOnCheckedChangeListener { _, checked ->
             prefs.edit().putBoolean(key, checked).apply()
         }
     }
@@ -126,9 +151,9 @@ class MainActivity : Activity() {
         checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
 
     private fun requestNeededPermissions() {
-        val perms = mutableListOf(Manifest.permission.CAMERA)
-        if (Build.VERSION.SDK_INT >= 33) perms.add(Manifest.permission.POST_NOTIFICATIONS)
-        requestPermissions(perms.toTypedArray(), 100)
+        val permissions = mutableListOf(Manifest.permission.CAMERA)
+        if (Build.VERSION.SDK_INT >= 33) permissions.add(Manifest.permission.POST_NOTIFICATIONS)
+        requestPermissions(permissions.toTypedArray(), 100)
     }
 
     private fun toggle() {
@@ -151,7 +176,7 @@ class MainActivity : Activity() {
             ContextCompat.startForegroundService(this, Intent(this, GestureService::class.java))
             Toast.makeText(
                 this,
-                "Đã bật. Hãy chuyển sang ứng dụng khác và thử hất tay trước camera.",
+                "Đã bật. Hãy chuyển sang ứng dụng khác và thử cử chỉ trước camera.",
                 Toast.LENGTH_LONG
             ).show()
         }
@@ -159,12 +184,12 @@ class MainActivity : Activity() {
     }
 
     private fun refresh() {
-        val camOk = hasCamera()
-        tvCam.text = if (camOk) "✅ Quyền camera: đã cấp" else "❌ Quyền camera: chưa cấp"
-        btnCam.visibility = if (camOk) View.GONE else View.VISIBLE
+        val cameraOk = hasCamera()
+        tvCam.text = if (cameraOk) "✅ Quyền camera: đã cấp" else "❌ Quyền camera: chưa cấp"
+        btnCam.visibility = if (cameraOk) View.GONE else View.VISIBLE
 
-        val a11yOk = GestureAccessibilityService.instance != null
-        tvA11y.text = if (a11yOk) {
+        val accessibilityOk = GestureAccessibilityService.instance != null
+        tvA11y.text = if (accessibilityOk) {
             "✅ Trợ năng: đã bật"
         } else {
             "❌ Trợ năng: chưa bật (vào Cài đặt Trợ năng, chọn Cử Chỉ Tay rồi bật)"
