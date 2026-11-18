@@ -11,8 +11,8 @@ android {
         applicationId = "com.cuchitay.app"
         minSdk = 28
         targetSdk = 34
-        versionCode = 2
-        versionName = "1.1"
+        versionCode = 3
+        versionName = "1.2"
         // vivo X200 Pro dùng chip 64-bit -> chỉ đóng gói arm64 cho nhẹ
         ndk {
             abiFilters.add("arm64-v8a")
