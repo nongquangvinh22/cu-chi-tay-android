@@ -8,16 +8,18 @@ enum class SwipeDir { UP, DOWN, LEFT, RIGHT }
 
 /**
  * Chuyển 21 landmark của MediaPipe thành cử chỉ.
- * Bộ lọc kết hợp độ vươn của đầu ngón, độ thẳng của các đốt ngón
- * và chuyển động tâm lòng bàn tay để giảm nhận nhầm do rung tay.
+ * Mỗi hướng vuốt được bật/tắt độc lập; thao tác chụp màn hình
+ * vẫn là một cử chỉ riêng.
  */
 class GestureEngine(
     private val onSwipe: (SwipeDir) -> Unit,
     private val onGrab: () -> Unit
 ) {
-    @Volatile var swipeEnabled = true
+    @Volatile var swipeUpEnabled = true
+    @Volatile var swipeDownEnabled = true
+    @Volatile var swipeLeftEnabled = false
+    @Volatile var swipeRightEnabled = false
     @Volatile var grabEnabled = true
-    @Volatile var horizontalEnabled = false
     @Volatile var invertVertical = false
     @Volatile var sensitivity = 1.0f
 
@@ -42,7 +44,6 @@ class GestureEngine(
         private const val GRAB_COOLDOWN_MS = 2200L
         private const val SMOOTH_ALPHA = 0.72f
 
-        // MCP, PIP, DIP, đầu ngón: trỏ, giữa, nhẫn, út.
         private val FINGERS = arrayOf(
             intArrayOf(5, 6, 7, 8),
             intArrayOf(9, 10, 11, 12),
@@ -52,7 +53,6 @@ class GestureEngine(
         private val PALM = intArrayOf(0, 5, 9, 13, 17)
     }
 
-    /** lm = null khi camera không thấy bàn tay. */
     fun onHand(lm: List<NormalizedLandmark>?, now: Long, aspect: Float) {
         if (lm == null || lm.size < 21) {
             resetMotion()
@@ -72,7 +72,6 @@ class GestureEngine(
             val tipRadius = dist(lm[0], lm[tip], aspect)
             val alignment = segmentAlignment(lm[mcp], lm[pip], lm[dip], lm[tip], aspect)
 
-            // Đầu ngón phải vươn qua khớp giữa và hai đốt cuối tương đối thẳng.
             if (tipRadius > pipRadius * 1.10f && alignment > 0.18f) {
                 extended++
             } else if (tipRadius < pipRadius * 1.05f) {
@@ -104,8 +103,8 @@ class GestureEngine(
             }
         }
 
-        // Hất tay chỉ được xét khi ít nhất 3/4 ngón dài đang duỗi.
-        if (!swipeEnabled || !isOpen) {
+        // Chỉ theo dõi chuyển động khi tay đang xòe.
+        if (!isOpen) {
             resetMotion()
             return
         }
@@ -139,33 +138,52 @@ class GestureEngine(
         val dy = filteredY - first.y
         val threshold = MIN_TRAVEL / sensitivity.coerceIn(0.6f, 1.6f)
 
-        val dir: SwipeDir = when {
+        val detectedDir: SwipeDir? = when {
             abs(dy) >= threshold && abs(dy) > abs(dx) * 1.4f ->
                 if (dy < 0f) SwipeDir.UP else SwipeDir.DOWN
-            horizontalEnabled && abs(dx) >= threshold && abs(dx) > abs(dy) * 1.4f ->
+            abs(dx) >= threshold && abs(dx) > abs(dy) * 1.4f ->
                 if (dx > 0f) SwipeDir.RIGHT else SwipeDir.LEFT
-            else -> return
+            else -> null
+        }
+
+        val detected = detectedDir ?: return
+        if (!isDirectionEnabled(detected)) {
+            resetMotion()
+            return
         }
 
         val last = lastSwipeDir
-        if (last != null && now - lastSwipeAt < REVERSE_LOCK_MS && dir == opposite(last)) {
+        if (last != null && now - lastSwipeAt < REVERSE_LOCK_MS && detected == opposite(last)) {
+            return
+        }
+
+        val output = if (invertVertical) {
+            when (detected) {
+                SwipeDir.UP -> SwipeDir.DOWN
+                SwipeDir.DOWN -> SwipeDir.UP
+                else -> detected
+            }
+        } else {
+            detected
+        }
+
+        // Đảo chiều cũng không được vượt qua công tắc độc lập của hướng đích.
+        if (!isDirectionEnabled(output)) {
+            resetMotion()
             return
         }
 
         lastSwipeAt = now
-        lastSwipeDir = dir
+        lastSwipeDir = output
         resetMotion()
-
-        val output = if (invertVertical) {
-            when (dir) {
-                SwipeDir.UP -> SwipeDir.DOWN
-                SwipeDir.DOWN -> SwipeDir.UP
-                else -> dir
-            }
-        } else {
-            dir
-        }
         onSwipe(output)
+    }
+
+    private fun isDirectionEnabled(dir: SwipeDir): Boolean = when (dir) {
+        SwipeDir.UP -> swipeUpEnabled
+        SwipeDir.DOWN -> swipeDownEnabled
+        SwipeDir.LEFT -> swipeLeftEnabled
+        SwipeDir.RIGHT -> swipeRightEnabled
     }
 
     private fun resetMotion() {
