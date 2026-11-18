@@ -21,6 +21,7 @@ class MainActivity : Activity() {
     private lateinit var tvCam: TextView
     private lateinit var tvA11y: TextView
     private lateinit var tvSens: TextView
+    private lateinit var tvSpeed: TextView
     private lateinit var btnCam: Button
     private lateinit var btnToggle: Button
 
@@ -33,6 +34,7 @@ class MainActivity : Activity() {
         tvCam = findViewById(R.id.tvCam)
         tvA11y = findViewById(R.id.tvA11y)
         tvSens = findViewById(R.id.tvSens)
+        tvSpeed = findViewById(R.id.tvSpeed)
         btnCam = findViewById(R.id.btnCam)
         btnToggle = findViewById(R.id.btnToggle)
 
@@ -52,13 +54,29 @@ class MainActivity : Activity() {
         bindSwitch(R.id.swHorizontal, Prefs.HORIZONTAL, false)
         bindSwitch(R.id.swInvert, Prefs.INVERT, false)
 
-        val seek = findViewById<SeekBar>(R.id.seekSens)
-        seek.progress = prefs.getInt(Prefs.SENS, 50)
-        updateSensLabel(seek.progress)
-        seek.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+        val sensitivitySeek = findViewById<SeekBar>(R.id.seekSens)
+        sensitivitySeek.progress = prefs.getInt(Prefs.SENS, 50).coerceIn(0, 100)
+        updateSensLabel(sensitivitySeek.progress)
+        sensitivitySeek.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(bar: SeekBar?, progress: Int, fromUser: Boolean) {
                 prefs.edit().putInt(Prefs.SENS, progress).apply()
                 updateSensLabel(progress)
+            }
+
+            override fun onStartTrackingTouch(bar: SeekBar?) {}
+            override fun onStopTrackingTouch(bar: SeekBar?) {}
+        })
+
+        val speedSeek = findViewById<SeekBar>(R.id.seekSpeed)
+        speedSeek.progress = prefs.getInt(
+            Prefs.SCROLL_SPEED,
+            Prefs.DEFAULT_SCROLL_SPEED
+        ).coerceIn(0, 100)
+        updateSpeedLabel(speedSeek.progress)
+        speedSeek.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(bar: SeekBar?, progress: Int, fromUser: Boolean) {
+                prefs.edit().putInt(Prefs.SCROLL_SPEED, progress).apply()
+                updateSpeedLabel(progress)
             }
 
             override fun onStartTrackingTouch(bar: SeekBar?) {}
@@ -91,7 +109,17 @@ class MainActivity : Activity() {
     }
 
     private fun updateSensLabel(progress: Int) {
-        tvSens.text = "Độ nhạy khi hất tay: $progress%  (kéo sang phải = nhạy hơn)"
+        tvSens.text = "Độ nhạy nhận diện: $progress%  ·  Sang phải để nhận diện nhạy hơn"
+    }
+
+    private fun updateSpeedLabel(progress: Int) {
+        val description = when {
+            progress >= 80 -> "rất nhanh"
+            progress >= 60 -> "nhanh"
+            progress >= 35 -> "vừa phải"
+            else -> "chậm, mượt"
+        }
+        tvSpeed.text = "Tốc độ cuộn: $progress%  ·  $description"
     }
 
     private fun hasCamera(): Boolean =
