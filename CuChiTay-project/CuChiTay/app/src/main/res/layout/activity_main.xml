@@ -36,7 +36,16 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
+            android:layout_marginTop="7dp"
+            android:text="Bản quyền của Nông Quang Vinh"
+            android:textColor="#A5C2D8"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
             android:layout_marginBottom="18dp"
             android:text="Điều khiển điện thoại bằng bàn tay trước camera. Không cần chạm vào màn hình."
             android:textColor="#C5D5E5"
@@ -180,12 +189,45 @@
                 android:textStyle="bold" />
 
             <Switch
-                android:id="@+id/swSwipe"
+                android:id="@+id/swSwipeUp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
                 android:buttonTint="#38BDF8"
-                android:text="Hất tay lên / xuống để cuộn trang"
+                android:text="Hất tay lên để cuộn lên"
+                android:textColor="#F1F5F9"
+                android:thumbTint="#67E8F9"
+                android:trackTint="#52738A" />
+
+            <Switch
+                android:id="@+id/swSwipeDown"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:buttonTint="#38BDF8"
+                android:text="Hất tay xuống để cuộn xuống"
+                android:textColor="#F1F5F9"
+                android:thumbTint="#67E8F9"
+                android:trackTint="#52738A" />
+
+            <Switch
+                android:id="@+id/swSwipeLeft"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:buttonTint="#38BDF8"
+                android:text="Hất tay sang trái"
+                android:textColor="#F1F5F9"
+                android:thumbTint="#67E8F9"
+                android:trackTint="#52738A" />
+
+            <Switch
+                android:id="@+id/swSwipeRight"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:buttonTint="#38BDF8"
+                android:text="Hất tay sang phải"
                 android:textColor="#F1F5F9"
                 android:thumbTint="#67E8F9"
                 android:trackTint="#52738A" />
@@ -197,17 +239,6 @@
                 android:layout_marginTop="6dp"
                 android:buttonTint="#38BDF8"
                 android:text="Xòe tay rồi nắm lại để chụp màn hình"
-                android:textColor="#F1F5F9"
-                android:thumbTint="#67E8F9"
-                android:trackTint="#52738A" />
-
-            <Switch
-                android:id="@+id/swHorizontal"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:buttonTint="#38BDF8"
-                android:text="Cho phép hất tay trái / phải"
                 android:textColor="#F1F5F9"
                 android:thumbTint="#67E8F9"
                 android:trackTint="#52738A" />
@@ -304,7 +335,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="9dp"
                 android:lineSpacingExtra="4dp"
-                android:text="• Đặt điện thoại thẳng đứng, để camera trước nhìn rõ bàn tay ở khoảng 25–50 cm và nơi đủ sáng.\n• Cuộn: xòe ít nhất 3/4 ngón dài rồi hất tay lên hoặc xuống.\n• Chụp màn hình: xòe tay rồi nắm lại.\n• Sau mỗi lần hất, đưa tay về từ từ hoặc ra khỏi khung hình để tránh nhận nhầm chuyển động ngược.\n• Muốn dừng, bấm nút TẮT trong ứng dụng hoặc trên thông báo.\n\nTrên vivo: đặt mức dùng pin nền của Cử Chỉ Tay thành Không hạn chế để giảm nguy cơ hệ thống dừng dịch vụ."
+                android:text="• Đặt điện thoại thẳng đứng, để camera trước nhìn rõ bàn tay ở khoảng 25–50 cm và nơi đủ sáng.\n• Hất tay theo hướng đã bật công tắc tương ứng.\n• Chụp màn hình: xòe tay rồi nắm lại.\n• Sau mỗi lần hất, đưa tay về từ từ hoặc ra khỏi khung hình để tránh nhận nhầm chuyển động ngược.\n• Muốn dừng, bấm nút TẮT trong ứng dụng hoặc trên thông báo.\n\nTrên vivo: đặt mức dùng pin nền của Cử Chỉ Tay thành Không hạn chế để giảm nguy cơ hệ thống dừng dịch vụ."
                 android:textColor="#D5E2EE"
                 android:textSize="13sp" />
         </LinearLayout>
