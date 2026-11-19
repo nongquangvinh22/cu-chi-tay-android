@@ -1,6 +1,6 @@
 # NQV Share V2
 
-**NQV Share** là ứng dụng Android chia sẻ ảnh, video và tài liệu do Nông Quang Vinh phát triển. Ứng dụng tải tệp gốc lên Cloudflare R2, sau đó tạo liên kết và mã QR để người nhận mở bằng trình duyệt trên iPhone, Android hoặc Windows.
+**NQV Share** là ứng dụng Android chia sẻ ảnh, video và tài liệu do Nông Quang Vinh phát triển. Ứng dụng tải tệp gốc lên Backblaze B2, sau đó tạo liên kết và mã QR để người nhận mở bằng trình duyệt trên iPhone, Android hoặc Windows.
 
 ## Tính năng
 
@@ -8,43 +8,25 @@
 - Giữ nguyên dữ liệu tệp; không resize, nén hoặc chuyển mã.
 - Chọn thời hạn liên kết: 1, 7 hoặc 30 ngày.
 - Chọn cách chia sẻ: sao chép liên kết, hiển thị mã QR hoặc mở bảng chia sẻ Android để gửi qua ứng dụng khác.
-- Kiểm tra trạng thái kết nối Cloudflare Worker ngay trong ứng dụng.
+- Kiểm tra trạng thái kết nối Worker ngay trong ứng dụng.
 - Hiển thị tiến trình tải lên và thông báo lỗi cụ thể; một tệp lỗi không làm mất các tệp đã tải lên thành công.
-- Hỗ trợ cả tệp mà Android không cung cấp trước dung lượng bằng cách tạo bản tạm trong bộ nhớ cache để xác định kích thước.
 - Trang tải tệp hoạt động trên Safari, Chrome và trình duyệt máy tính.
-- Giao diện nhiều màu sắc, có dòng bản quyền Nông Quang Vinh.
 
 ## Quan trọng: cần triển khai máy chủ
 
-Mã nguồn GitHub không tự cung cấp dịch vụ lưu trữ trực tuyến. Trước khi chia sẻ tệp qua Internet, bạn cần có Cloudflare Worker đang chạy và một bucket Cloudflare R2 đã cấu hình. APK chỉ chứa địa chỉ Worker; **không đưa R2 Access Key hoặc Secret Key vào ứng dụng hoặc GitHub**.
-
-### Thiết lập Cloudflare R2 và Worker
+Mã nguồn GitHub không tự cung cấp dịch vụ lưu trữ trực tuyến. Trước khi chia sẻ tệp qua Internet, bạn cần có một bucket Backblaze B2 riêng tư và Cloudflare Worker đang chạy.
 
 Đọc hướng dẫn đầy đủ tại [backend/README.md](backend/README.md). Tóm tắt:
 
-1. Tạo bucket R2 tên `nqv-share-files`.
-2. Tạo R2 API token có quyền đọc/ghi object cho bucket.
+1. Tạo bucket Backblaze B2 tên `nqv-share-files` tại region `us-east-005`.
+2. Tạo Application Key giới hạn vào bucket và prefix `objects/`, có quyền đọc/ghi object.
 3. Trong thư mục `NQVShare/backend`, chạy `npm install` rồi `npx wrangler login`.
-4. Đặt ba secret bằng Wrangler:
-   - `npx wrangler secret put R2_ACCOUNT_ID`
-   - `npx wrangler secret put R2_ACCESS_KEY_ID`
-   - `npx wrangler secret put R2_SECRET_ACCESS_KEY`
+4. Đặt hai Secret cho Worker: `B2_KEY_ID` và `B2_APPLICATION_KEY`.
 5. Chạy `npx wrangler deploy`.
 6. Mở URL Worker kèm `/health`. Kết quả cần có `"ok": true`.
 7. Mở NQV Share, nhập URL Worker, nhấn **Lưu địa chỉ**, sau đó nhấn **Kiểm tra**.
 
-Không gửi khóa Cloudflare trong tin nhắn, ảnh chụp màn hình hoặc commit GitHub. Nếu từng lỡ công khai khóa, hãy thu hồi và tạo token mới.
-
-## Cách sử dụng
-
-1. Kết nối Worker bằng URL HTTPS.
-2. Chọn tệp muốn gửi.
-3. Chọn thời hạn link 1, 7 hoặc 30 ngày.
-4. Nhấn **TẢI LÊN VÀ TẠO LINK**.
-5. Ở mục **Chọn cách chia sẻ**, chọn Liên kết, Mã QR hoặc Ứng dụng khác.
-6. Người nhận mở liên kết bằng Safari/Chrome rồi nhấn **Tải tệp gốc**.
-
-Mỗi tệp có một liên kết riêng. Bất kỳ ai có liên kết đều có thể tải tệp cho đến khi liên kết hết hạn hoặc tệp bị xóa.
+Không gửi Application Key trong tin nhắn, ảnh chụp màn hình hoặc commit GitHub.
 
 ## Build APK
 
