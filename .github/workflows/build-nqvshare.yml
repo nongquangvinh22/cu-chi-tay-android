@@ -1,0 +1,88 @@
+name: Build NQV Share APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - "NQVShare/app/src/**"
+      - "NQVShare/app/build.gradle.kts"
+      - "NQVShare/build.gradle.kts"
+      - "NQVShare/settings.gradle.kts"
+      - "NQVShare/gradle.properties"
+      - ".github/workflows/build-nqvshare.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: NQVShare
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Gradle 8.9
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.9"
+
+      - name: Install Android SDK packages
+        shell: bash
+        run: |
+          set -euo pipefail
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then
+            SDKMANAGER="$(find "$ANDROID_HOME/cmdline-tools" -type f -name sdkmanager -print -quit)"
+          fi
+          test -x "$SDKMANAGER"
+          yes | "$SDKMANAGER" --sdk_root="$ANDROID_HOME" --licenses >/dev/null || true
+          "$SDKMANAGER" --sdk_root="$ANDROID_HOME" --install \
+            "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+
+      - name: Build debug APK
+        run: gradle --no-daemon --stacktrace assembleDebug
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: NQV-Share-APK-v0.1.0
+          path: NQVShare/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Save APK in repository
+        shell: bash
+        working-directory: .
+        run: |
+          set -euo pipefail
+          mkdir -p NQVShare/dist
+          cp NQVShare/app/build/outputs/apk/debug/app-debug.apk NQVShare/dist/NQVShare.apk
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add NQVShare/dist/NQVShare.apk
+          if ! git diff --cached --quiet; then
+            git commit -m "Build NQV Share v0.1.0 APK"
+            git push
+          fi
+
+      - name: Publish GitHub prerelease
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: nqvshare-v0.1.0-build-${{ github.run_number }}
+          name: NQV Share v0.1.0 (build ${{ github.run_number }})
+          target_commitish: main
+          prerelease: true
+          generate_release_notes: true
+          fail_on_unmatched_files: true
+          files: NQVShare/dist/NQVShare.apk

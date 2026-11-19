@@ -1,0 +1,11 @@
+name = "nqv-share-api"
+main = "src/index.js"
+compatibility_date = "2026-11-01"
+compatibility_flags = ["nodejs_compat"]
+workers_dev = true
+
+[vars]
+R2_BUCKET = "nqv-share-files"
+
+[triggers]
+crons = ["0 * * * *"]
