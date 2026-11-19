@@ -5,7 +5,9 @@ compatibility_flags = ["nodejs_compat"]
 workers_dev = true
 
 [vars]
-R2_BUCKET = "nqv-share-files"
+B2_BUCKET = "nqv-share-files"
+B2_ENDPOINT = "https://s3.us-east-005.backblazeb2.com"
+B2_REGION = "us-east-005"
 
 [triggers]
 crons = ["0 * * * *"]
