@@ -168,7 +168,7 @@ async function createUpload(request, env) {
   return jsonResponse({
     id,
     uploadUrl,
-    uploadHeaders: { "Content-Type": contentType },
+    uploadHeaders: { "Content-Type": contentType, "x-amz-meta-filename": encodeURIComponent(filename) },
     shareUrl,
     expiresAt: new Date(expiresAt).toISOString(),
     uploadUrlExpiresInSeconds: 900
