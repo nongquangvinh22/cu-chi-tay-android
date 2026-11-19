@@ -1,44 +1,71 @@
-# NQV Share
+# NQV Share V2
 
-**NQV Share** is an Android file-sharing app by Nông Quang Vinh. Pick photos, videos, or documents on Android, upload the original bytes directly to Cloudflare R2 through a short-lived signed URL, then share a link or QR code. Recipients can open the link in Safari, Chrome, or a desktop browser; they do not need to install the APK.
+**NQV Share** là ứng dụng Android chia sẻ ảnh, video và tài liệu do Nông Quang Vinh phát triển. Ứng dụng tải tệp gốc lên Cloudflare R2, sau đó tạo liên kết và mã QR để người nhận mở bằng trình duyệt trên iPhone, Android hoặc Windows.
 
-## What this first version includes
+## Tính năng
 
-- Select multiple files using Android's system file picker.
-- Upload each file as-is; the app does not resize, recompress, or transcode it.
-- Upload directly to a private R2 bucket using a short-lived presigned PUT URL.
-- Generate one share link and QR code per uploaded file.
-- Copy or share links with other apps.
-- Download from a simple web page that works on iPhone and Windows.
-- Share links expire after 7 days by default; the Worker also supports 1- and 30-day options.
-- GitHub Actions builds a debug APK and publishes it as a GitHub prerelease.
+- Chọn một hoặc nhiều ảnh, video và tài liệu bằng trình chọn tệp của Android.
+- Giữ nguyên dữ liệu tệp; không resize, nén hoặc chuyển mã.
+- Chọn thời hạn liên kết: 1, 7 hoặc 30 ngày.
+- Chọn cách chia sẻ: sao chép liên kết, hiển thị mã QR hoặc mở bảng chia sẻ Android để gửi qua ứng dụng khác.
+- Kiểm tra trạng thái kết nối Cloudflare Worker ngay trong ứng dụng.
+- Hiển thị tiến trình tải lên và thông báo lỗi cụ thể; một tệp lỗi không làm mất các tệp đã tải lên thành công.
+- Hỗ trợ cả tệp mà Android không cung cấp trước dung lượng bằng cách tạo bản tạm trong bộ nhớ cache để xác định kích thước.
+- Trang tải tệp hoạt động trên Safari, Chrome và trình duyệt máy tính.
+- Giao diện nhiều màu sắc, có dòng bản quyền Nông Quang Vinh.
 
-## Important
+## Quan trọng: cần triển khai máy chủ
 
-This repository contains the app source and Cloudflare Worker source. **The online transfer service is not live until you deploy the Worker and configure your own Cloudflare R2 bucket and credentials.** The Android app asks for the Worker URL in Settings. Never put R2 secret keys in the Android app.
+Mã nguồn GitHub không tự cung cấp dịch vụ lưu trữ trực tuyến. Trước khi chia sẻ tệp qua Internet, bạn cần có Cloudflare Worker đang chạy và một bucket Cloudflare R2 đã cấu hình. APK chỉ chứa địa chỉ Worker; **không đưa R2 Access Key hoặc Secret Key vào ứng dụng hoặc GitHub**.
 
-This initial version uses a single R2 PUT per file. It supports files up to 5 GiB. Very large uploads are not resumable yet, so an interrupted upload must be restarted. Password-protected links, multi-file ZIP bundles, and account sign-in are not included in v0.1.
+### Thiết lập Cloudflare R2 và Worker
 
-## Build the APK
+Đọc hướng dẫn đầy đủ tại [backend/README.md](backend/README.md). Tóm tắt:
 
-1. Open the `NQVShare` folder in Android Studio.
-2. Use JDK 17 and Android SDK Platform 35.
-3. Select **Build > Build Bundle(s) / APK(s) > Build APK(s)**.
-4. Or push changes to GitHub and open **Actions > Build NQV Share APK**. The workflow uploads an artifact and publishes a prerelease containing `NQVShare.apk`.
+1. Tạo bucket R2 tên `nqv-share-files`.
+2. Tạo R2 API token có quyền đọc/ghi object cho bucket.
+3. Trong thư mục `NQVShare/backend`, chạy `npm install` rồi `npx wrangler login`.
+4. Đặt ba secret bằng Wrangler:
+   - `npx wrangler secret put R2_ACCOUNT_ID`
+   - `npx wrangler secret put R2_ACCESS_KEY_ID`
+   - `npx wrangler secret put R2_SECRET_ACCESS_KEY`
+5. Chạy `npx wrangler deploy`.
+6. Mở URL Worker kèm `/health`. Kết quả cần có `"ok": true`.
+7. Mở NQV Share, nhập URL Worker, nhấn **Lưu địa chỉ**, sau đó nhấn **Kiểm tra**.
 
-## Configure the online service
+Không gửi khóa Cloudflare trong tin nhắn, ảnh chụp màn hình hoặc commit GitHub. Nếu từng lỡ công khai khóa, hãy thu hồi và tạo token mới.
 
-Follow [backend/README.md](backend/README.md). After deployment, copy your Worker URL (for example `https://nqv-share-api.<your-subdomain>.workers.dev`) into the app's **Địa chỉ máy chủ** field and tap **Lưu**.
+## Cách sử dụng
 
-## Use
+1. Kết nối Worker bằng URL HTTPS.
+2. Chọn tệp muốn gửi.
+3. Chọn thời hạn link 1, 7 hoặc 30 ngày.
+4. Nhấn **TẢI LÊN VÀ TẠO LINK**.
+5. Ở mục **Chọn cách chia sẻ**, chọn Liên kết, Mã QR hoặc Ứng dụng khác.
+6. Người nhận mở liên kết bằng Safari/Chrome rồi nhấn **Tải tệp gốc**.
 
-1. Open NQV Share on Android and save the Worker URL.
-2. Tap **Chọn tệp**, select one or more files, then tap **Tải lên và tạo link**.
-3. Wait for each upload to finish. A separate share link is created for each file.
-4. Copy a link or show its QR code.
-5. On iPhone, open the link in Safari and tap **Tải tệp gốc**.
+Mỗi tệp có một liên kết riêng. Bất kỳ ai có liên kết đều có thể tải tệp cho đến khi liên kết hết hạn hoặc tệp bị xóa.
 
-NQV Share does not alter the original file. The actual downloaded file can still be affected by browser/iOS save-location behavior, but the bytes delivered by the service are the uploaded bytes.
+## Build APK
+
+### Android Studio
+
+- Mở thư mục `NQVShare`.
+- Dùng JDK 17 và Android SDK Platform 35.
+- Chạy tác vụ Gradle `assembleDebug`, hoặc chọn **Build > Build Bundle(s) / APK(s) > Build APK(s)**.
+- APK debug nằm ở `app/build/outputs/apk/debug/app-debug.apk`.
+
+### GitHub Actions
+
+Workflow `Build NQV Share APK` tự chạy khi có thay đổi trong mã nguồn NQV Share trên nhánh `main`, hoặc có thể chạy thủ công từ tab **Actions**. Workflow tạo APK, lưu bản build tại `NQVShare/dist/NQVShare.apk` và xuất GitHub prerelease.
+
+## Giới hạn hiện tại
+
+- Một lần PUT hỗ trợ tối đa 5 GiB cho mỗi tệp.
+- Tải lên đang dùng một PUT đơn; nếu mất mạng giữa chừng, cần tải lại tệp đó.
+- Chưa có tài khoản người dùng, mật khẩu cho link hoặc tải nhiều tệp dưới dạng ZIP.
+- Đây là bản thử nghiệm cá nhân. Trước khi mở công khai cho nhiều người dùng, nên bổ sung xác thực, giới hạn tốc độ và hạn mức dung lượng.
 
 ---
-© Bản quyền của Nông Quang Vinh
+
+**Bản quyền Nông Quang Vinh**

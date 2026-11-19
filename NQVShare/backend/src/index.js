@@ -135,7 +135,9 @@ async function headSharedObject(env, id) {
 
 async function createUpload(request, env) {
   const body = await request.json().catch(() => null);
-  if (!body || typeof body !== "object") return jsonResponse({ error: "Dữ liệu không hợp lệ." }, 400);
+  if (!body || typeof body !== "object") {
+    return jsonResponse({ error: "Dữ liệu không hợp lệ." }, 400);
+  }
 
   const filename = cleanFilename(body.filename);
   const contentType = String(body.contentType || "application/octet-stream").slice(0, 160);
@@ -144,8 +146,8 @@ async function createUpload(request, env) {
     ? Number(body.expiresInDays)
     : 7;
 
-  if (!Number.isFinite(size) || size <= 0 || size > MAX_SINGLE_PUT) {
-    return jsonResponse({ error: "Tệp phải có dung lượng lớn hơn 0 và không vượt quá 5 GiB." }, 400);
+  if (!Number.isFinite(size) || size < 0 || size > MAX_SINGLE_PUT) {
+    return jsonResponse({ error: "Tệp phải có dung lượng từ 0 đến 5 GiB." }, 400);
   }
 
   const expiresAt = Date.now() + expiryDays * 24 * 60 * 60 * 1000;
@@ -168,7 +170,10 @@ async function createUpload(request, env) {
   return jsonResponse({
     id,
     uploadUrl,
-    uploadHeaders: { "Content-Type": contentType, "x-amz-meta-filename": encodeURIComponent(filename) },
+    uploadHeaders: {
+      "Content-Type": contentType,
+      "x-amz-meta-filename": encodeURIComponent(filename)
+    },
     shareUrl,
     expiresAt: new Date(expiresAt).toISOString(),
     uploadUrlExpiresInSeconds: 900
@@ -250,7 +255,7 @@ function pageShell(title, body) {
     '.brand{font-size:13px;letter-spacing:.16em;font-weight:800;color:#3157d5}.file{padding:28px 0 18px}.symbol{margin:auto;width:64px;height:64px;border-radius:20px;background:#edf1ff;color:#3157d5;display:grid;place-items:center;font-size:34px}.file h1{font-size:21px;overflow-wrap:anywhere;margin:18px 0 8px}.file p,.hint{font-size:13px;color:#72809a}.button{display:block;background:#3157d5;color:#fff;text-decoration:none;font-weight:700;padding:15px;border-radius:14px;margin:12px 0}.hint{line-height:1.6}.copyright{border-top:1px solid #edf0f5;margin-top:24px;padding-top:16px;font-size:12px;color:#8791a5}' +
     '</style></head><body><main class="card"><div class="brand">NQV SHARE</div>' +
     body +
-    '<div class="copyright">© Bản quyền của Nông Quang Vinh</div></main></body></html>';
+    '<div class="copyright">Bản quyền Nông Quang Vinh</div></main></body></html>';
 }
 
 async function cleanupExpired(env) {
@@ -288,28 +293,23 @@ export default {
 
     try {
       if (url.pathname === "/health" && request.method === "GET") {
-        return jsonResponse({ ok: true, service: "NQV Share API" });
+        return jsonResponse({ ok: true, service: "NQV Share API", version: "0.2.0" });
       }
-
       if (url.pathname === "/api/create-upload" && request.method === "POST") {
         return await createUpload(request, env);
       }
-
       const shareMatch = /^\/api\/share\/([^/]+)$/.exec(url.pathname);
       if (shareMatch && request.method === "GET") {
         return await getShareInfo(env, shareMatch[1], request);
       }
-
       const downloadMatch = /^\/api\/download\/([^/]+)$/.exec(url.pathname);
       if (downloadMatch && request.method === "GET") {
         return await downloadRedirect(env, downloadMatch[1]);
       }
-
       const pageMatch = /^\/s\/([^/]+)$/.exec(url.pathname);
       if (pageMatch && request.method === "GET") {
         return await renderSharePage(env, pageMatch[1], request);
       }
-
       return jsonResponse({ error: "Không tìm thấy đường dẫn." }, 404);
     } catch (error) {
       return jsonResponse({
