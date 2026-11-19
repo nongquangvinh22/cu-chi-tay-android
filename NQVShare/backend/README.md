@@ -1,13 +1,19 @@
-# NQV Share Worker - Cấu hình Cloudflare R2
+# NQV Share Worker - Backblaze B2
 
-Worker tạo URL tải lên có chữ ký ở phía máy chủ. Ứng dụng Android chỉ nhận URL tạm thời và không chứa thông tin xác thực R2.
+Worker tạo URL tải lên có chữ ký ở phía máy chủ. Ứng dụng Android chỉ nhận URL tạm thời; không chứa thông tin xác thực Backblaze.
 
-## 1. Tạo bucket và token
+## 1. Cấu hình Backblaze B2
 
-1. Mở Cloudflare Dashboard → R2 Object Storage.
-2. Tạo bucket tên `nqv-share-files` (hoặc sửa giá trị `R2_BUCKET` trong `wrangler.toml`).
-3. Tạo R2 API token chỉ cấp quyền cần thiết cho bucket này: đọc, ghi và xóa object.
-4. Lưu Account ID, Access Key ID và Secret Access Key ở nơi riêng tư.
+Bucket đã dùng cho dự án:
+
+- Bucket: `nqv-share-files`
+- Region: `us-east-005`
+- S3 endpoint: `https://s3.us-east-005.backblazeb2.com`
+- Bucket access: Private
+
+Tạo Application Key riêng cho Worker, giới hạn trong bucket `nqv-share-files`, quyền Read and Write và file name prefix `objects/`.
+
+**Quyền List All Bucket Names không cần thiết**: Worker chỉ gọi API liệt kê object trong bucket đã cấu hình, không gọi S3 List Buckets. Hãy bỏ quyền này để giữ khóa ở mức tối thiểu. Nếu khóa hiện tại đã được cấp quyền này, nên thu hồi và tạo khóa khác không bật mục đó.
 
 ## 2. Cài Wrangler
 
@@ -18,29 +24,41 @@ npm install
 npx wrangler login
 ```
 
-## 3. Cấu hình secret
+## 3. Thêm secrets cho Worker
 
-Chạy từng lệnh và nhập giá trị tương ứng:
+Chạy từng lệnh trong PowerShell và nhập giá trị tương ứng từ Application Key vừa tạo:
 
 ```powershell
-npx wrangler secret put R2_ACCOUNT_ID
-npx wrangler secret put R2_ACCESS_KEY_ID
-npx wrangler secret put R2_SECRET_ACCESS_KEY
+npx wrangler secret put B2_KEY_ID
+npx wrangler secret put B2_APPLICATION_KEY
 ```
 
-Không đưa các giá trị này vào mã nguồn, file cấu hình công khai hoặc APK.
+Hoặc trong Cloudflare Dashboard, mở Worker `nqv-share-api` → **Settings → Variables and Secrets** và thêm cả hai biến dưới dạng **Secret**:
+
+- `B2_KEY_ID`
+- `B2_APPLICATION_KEY`
+
+Các biến không bí mật đã được khai báo trong `wrangler.toml`:
+
+- `B2_BUCKET = nqv-share-files`
+- `B2_ENDPOINT = https://s3.us-east-005.backblazeb2.com`
+- `B2_REGION = us-east-005`
+
+Không đưa Application Key vào mã nguồn, file cấu hình công khai, APK hoặc GitHub.
 
 ## 4. Deploy
+
+Từ thư mục `NQVShare/backend`, chạy:
 
 ```powershell
 npx wrangler deploy
 ```
 
-Wrangler sẽ hiển thị địa chỉ dạng:
+Wrangler sẽ hiển thị URL dạng:
 
 `https://nqv-share-api.<ten-tai-khoan>.workers.dev`
 
-Mở địa chỉ đó thêm `/health`. Kết quả thành công có `"ok": true`.
+Mở URL đó thêm `/health`. Kết quả mong đợi có `"ok": true`.
 
 ## 5. Kết nối ứng dụng
 
@@ -51,18 +69,19 @@ Mở địa chỉ đó thêm `/health`. Kết quả thành công có `"ok": true
 
 ## Cách hoạt động và giới hạn
 
-- Tệp được gửi trực tiếp từ điện thoại lên R2 bằng presigned PUT URL; Worker không nhận toàn bộ nội dung tệp.
+- Tệp được gửi trực tiếp từ điện thoại lên Backblaze B2 bằng presigned PUT URL; Worker không nhận toàn bộ nội dung tệp.
 - Giới hạn mỗi tệp là 5 GiB cho một lần PUT.
-- URL tải lên có hiệu lực 15 phút. Link chia sẻ mặc định 7 ngày; app hỗ trợ 1, 7 hoặc 30 ngày.
-- URL tải xuống ký tạm thời trong 10 phút khi người nhận bấm nút tải.
-- Worker chạy tác vụ dọn object hết hạn mỗi giờ.
+- URL tải lên có hiệu lực 15 phút. Link chia sẻ có thời hạn 1, 7 hoặc 30 ngày.
+- URL tải xuống được ký trong 10 phút khi người nhận bấm nút tải.
+- Worker chạy tác vụ dọn tệp hết hạn mỗi giờ. Tác vụ này liệt kê và xóa các phiên bản của object, không chỉ tạo delete marker.
 - Nếu upload bị gián đoạn, bản hiện tại cần tải lại từ đầu.
 
-## An toàn
+## An toàn và chi phí
 
-- Giữ bucket ở chế độ riêng tư; không bật public access nếu không có nhu cầu rõ ràng.
+- Giữ bucket ở chế độ Private.
 - Link chia sẻ là thông tin riêng tư: ai có link đều có thể tải tệp trong thời hạn hiệu lực.
-- Đây là bản thử nghiệm cá nhân, chưa có đăng nhập, quota theo người dùng hoặc chống lạm dụng đầy đủ. Không nên công khai dịch vụ cho người lạ trước khi bổ sung kiểm soát phù hợp.
+- Theo dõi mức sử dụng và giới hạn miễn phí của Backblaze B2; vượt hạn mức có thể phát sinh phí.
+- Đây là bản thử nghiệm cá nhân, chưa có đăng nhập, quota theo người dùng hoặc chống lạm dụng đầy đủ. Không nên công khai dịch vụ cho nhiều người dùng trước khi bổ sung kiểm soát phù hợp.
 
 ---
 
