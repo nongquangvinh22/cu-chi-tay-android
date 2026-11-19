@@ -3,7 +3,7 @@ import {
   PutObjectCommand,
   HeadObjectCommand,
   GetObjectCommand,
-  DeleteObjectCommand,
+  ListObjectVersionsCommand,
   ListObjectsV2Command,
   DeleteObjectsCommand
 } from "@aws-sdk/client-s3";
@@ -37,17 +37,17 @@ function htmlResponse(html, status = 200) {
 }
 
 function getS3(env) {
-  const required = ["R2_ACCOUNT_ID", "R2_ACCESS_KEY_ID", "R2_SECRET_ACCESS_KEY", "R2_BUCKET"];
+  const required = ["B2_KEY_ID", "B2_APPLICATION_KEY", "B2_BUCKET", "B2_ENDPOINT", "B2_REGION"];
   for (const key of required) {
     if (!env[key]) throw new Error("Thiếu cấu hình máy chủ: " + key);
   }
   return new S3Client({
-    region: "auto",
-    endpoint: "https://" + env.R2_ACCOUNT_ID + ".r2.cloudflarestorage.com",
+    region: env.B2_REGION,
+    endpoint: env.B2_ENDPOINT,
     forcePathStyle: true,
     credentials: {
-      accessKeyId: env.R2_ACCESS_KEY_ID,
-      secretAccessKey: env.R2_SECRET_ACCESS_KEY
+      accessKeyId: env.B2_KEY_ID,
+      secretAccessKey: env.B2_APPLICATION_KEY
     }
   });
 }
@@ -101,19 +101,52 @@ function escapeHtml(value) {
   })[character]);
 }
 
+async function deleteAllObjectVersions(client, bucket, key) {
+  let keyMarker;
+  let versionIdMarker;
+
+  do {
+    const page = await client.send(new ListObjectVersionsCommand({
+      Bucket: bucket,
+      Prefix: key,
+      KeyMarker: keyMarker,
+      VersionIdMarker: versionIdMarker,
+      MaxKeys: 1000
+    }));
+
+    const objects = [
+      ...(page.Versions || []),
+      ...(page.DeleteMarkers || [])
+    ]
+      .filter((item) => item.Key === key && item.VersionId)
+      .map((item) => ({ Key: key, VersionId: item.VersionId }));
+
+    for (let index = 0; index < objects.length; index += 1000) {
+      await client.send(new DeleteObjectsCommand({
+        Bucket: bucket,
+        Delete: { Objects: objects.slice(index, index + 1000), Quiet: true }
+      }));
+    }
+
+    if (!page.IsTruncated) break;
+    keyMarker = page.NextKeyMarker;
+    versionIdMarker = page.NextVersionIdMarker;
+  } while (true);
+}
+
 async function headSharedObject(env, id) {
   const parsed = parseId(id);
   if (!parsed) return { missing: true };
   if (Date.now() >= parsed.expiresAt) {
     const client = getS3(env);
-    await client.send(new DeleteObjectCommand({ Bucket: env.R2_BUCKET, Key: parsed.key }));
+    await deleteAllObjectVersions(client, env.B2_BUCKET, parsed.key);
     return { expired: true };
   }
 
   const client = getS3(env);
   try {
     const object = await client.send(new HeadObjectCommand({
-      Bucket: env.R2_BUCKET,
+      Bucket: env.B2_BUCKET,
       Key: parsed.key
     }));
     const name = decodeFilename(object.Metadata?.filename);
@@ -158,7 +191,7 @@ async function createUpload(request, env) {
   const uploadUrl = await getSignedUrl(
     client,
     new PutObjectCommand({
-      Bucket: env.R2_BUCKET,
+      Bucket: env.B2_BUCKET,
       Key: key,
       ContentType: contentType,
       Metadata: { filename: encodeURIComponent(filename) }
@@ -208,7 +241,7 @@ async function downloadRedirect(env, id) {
   const downloadUrl = await getSignedUrl(
     client,
     new GetObjectCommand({
-      Bucket: env.R2_BUCKET,
+      Bucket: env.B2_BUCKET,
       Key: object.key,
       ResponseContentDisposition: disposition,
       ResponseContentType: object.contentType
@@ -260,28 +293,31 @@ function pageShell(title, body) {
 
 async function cleanupExpired(env) {
   const client = getS3(env);
+  const expiredKeys = [];
   let continuationToken;
+
   do {
     const page = await client.send(new ListObjectsV2Command({
-      Bucket: env.R2_BUCKET,
+      Bucket: env.B2_BUCKET,
       Prefix: "objects/",
       MaxKeys: 1000,
       ContinuationToken: continuationToken
     }));
-    const expired = (page.Contents || []).filter((item) => {
+
+    for (const item of page.Contents || []) {
       const id = String(item.Key || "").slice("objects/".length);
       const parsed = parseId(id);
-      return parsed && Date.now() >= parsed.expiresAt;
-    }).map((item) => ({ Key: item.Key }));
-
-    if (expired.length) {
-      await client.send(new DeleteObjectsCommand({
-        Bucket: env.R2_BUCKET,
-        Delete: { Objects: expired, Quiet: true }
-      }));
+      if (parsed && Date.now() >= parsed.expiresAt) {
+        expiredKeys.push(item.Key);
+      }
     }
+
     continuationToken = page.IsTruncated ? page.NextContinuationToken : undefined;
   } while (continuationToken);
+
+  for (const key of expiredKeys) {
+    await deleteAllObjectVersions(client, env.B2_BUCKET, key);
+  }
 }
 
 export default {
