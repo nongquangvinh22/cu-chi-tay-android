@@ -47,9 +47,21 @@ jobs:
             "platform-tools" "platforms;android-35" "build-tools;35.0.0"
 
       - name: Build optimized release APK
-        run: gradle --no-daemon --stacktrace assembleRelease
+        run: |
+          set -o pipefail
+          gradle --no-daemon --stacktrace assembleRelease 2>&1 | tee ../nqv-airshare-build.log
+
+      - name: Upload build log for diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: NQV-AirShare-build-log
+          path: nqv-airshare-build.log
+          if-no-files-found: warn
+          retention-days: 7
 
       - name: Upload release APK artifact
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: NQV-AirShare-v0.2.0-Release
@@ -58,6 +70,7 @@ jobs:
           retention-days: 30
 
       - name: Publish stable GitHub release
+        if: success()
         uses: softprops/action-gh-release@v2
         with:
           tag_name: nqv-airshare-0.2.0-build-${{ github.run_number }}
