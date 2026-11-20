@@ -1,4 +1,4 @@
-# NQV AirShare 0.2.0
+# NQV AirShare 0.3.0
 
 Ứng dụng Android gửi ảnh/video từ Vivo sang iPhone. iPhone không cần cài app: mở Camera để quét QR và dùng Safari/Files để nhận.
 
@@ -31,3 +31,10 @@ Mã Android không chứa khóa Backblaze. Cloudflare Worker cần được tri�
 
 ## Build
 GitHub Actions build bản release APK từ NQV-AirShare/app.
+
+
+## Giao diện 0.3.0
+- Nền aurora chuyển động nhẹ, thẻ kính nhiều lớp và đường phản chiếu.
+- Header thương hiệu và thông tin bản quyền ở cả đầu/cuối màn hình.
+- Phân cấp typography, nút bo tròn, segmented selector và hiệu ứng chuyển cảnh.
+- Không thêm dữ liệu rác chỉ để làm APK lớn; ưu tiên hiệu năng và dung lượng hợp lý.

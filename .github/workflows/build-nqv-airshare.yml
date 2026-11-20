@@ -1,4 +1,4 @@
-name: Build NQV AirShare 0.2.0
+name: Build NQV AirShare 0.3.0
 
 on:
   workflow_dispatch:
@@ -64,7 +64,7 @@ jobs:
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: NQV-AirShare-v0.2.0-Release
+          name: NQV-AirShare-v0.3.0-Release
           path: NQV-AirShare/app/build/outputs/apk/release/app-release.apk
           if-no-files-found: error
           retention-days: 30
@@ -73,8 +73,8 @@ jobs:
         if: success()
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: nqv-airshare-0.2.0-build-${{ github.run_number }}
-          name: NQV AirShare 0.2.0
+          tag_name: nqv-airshare-0.3.0-build-${{ github.run_number }}
+          name: NQV AirShare 0.3.0
           target_commitish: main
           prerelease: false
           make_latest: true

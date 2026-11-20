@@ -146,83 +146,167 @@ public class MainActivity extends Activity {
     }
 
     private void buildScreen() {
+        getWindow().setStatusBarColor(Color.TRANSPARENT);
+        getWindow().setNavigationBarColor(Color.TRANSPARENT);
+        getWindow().getDecorView().setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
+                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
+                View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+        );
+
+        FrameLayout root = new FrameLayout(this);
+        root.setBackgroundColor(Color.rgb(7, 12, 27));
+
+        AuroraBackground aurora = new AuroraBackground(this);
+        root.addView(aurora, new FrameLayout.LayoutParams(-1, -1));
+
         ScrollView scroll = new ScrollView(this);
         scroll.setFillViewport(true);
-        GradientDrawable background = new GradientDrawable(
-                GradientDrawable.Orientation.TL_BR,
-                new int[]{Color.rgb(8, 17, 38), Color.rgb(15, 37, 70), Color.rgb(20, 29, 56)});
-        scroll.setBackground(background);
+        scroll.setClipToPadding(false);
+        scroll.setOverScrollMode(View.OVER_SCROLL_NEVER);
+        scroll.setBackgroundColor(Color.TRANSPARENT);
+        root.addView(scroll, new FrameLayout.LayoutParams(-1, -1));
 
         LinearLayout page = new LinearLayout(this);
         page.setOrientation(LinearLayout.VERTICAL);
-        page.setPadding(dp(20), dp(22), dp(20), dp(30));
+        page.setPadding(dp(20), dp(46), dp(20), dp(38));
         scroll.addView(page);
 
+        // Brand header
         LinearLayout header = new LinearLayout(this);
         header.setGravity(Gravity.CENTER_VERTICAL);
         page.addView(header);
 
+        FrameLayout logoFrame = new FrameLayout(this);
+        logoFrame.setBackground(pillBackground(Color.argb(38, 155, 205, 255),
+                Color.argb(120, 220, 240, 255)));
+        logoFrame.setElevation(dp(7));
+        LinearLayout.LayoutParams logoFrameLp = new LinearLayout.LayoutParams(dp(62), dp(62));
+        logoFrameLp.rightMargin = dp(13);
+        header.addView(logoFrame, logoFrameLp);
+
         ImageView logo = new ImageView(this);
         logo.setImageResource(com.nongquangvinh.airshare.R.drawable.nqv_logo);
-        LinearLayout.LayoutParams logoLp = new LinearLayout.LayoutParams(dp(58), dp(58));
-        logoLp.rightMargin = dp(12);
-        header.addView(logo, logoLp);
+        logo.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        FrameLayout.LayoutParams logoLp = new FrameLayout.LayoutParams(dp(54), dp(54), Gravity.CENTER);
+        logoFrame.addView(logo, logoLp);
 
         LinearLayout brandBlock = new LinearLayout(this);
         brandBlock.setOrientation(LinearLayout.VERTICAL);
         header.addView(brandBlock, new LinearLayout.LayoutParams(0, -2, 1f));
 
-        TextView brand = text("NQV AIRSHARE", 17, Color.WHITE, true);
-        brandBlock.addView(brand);
-        TextView copyrightTop = text("BẢN QUYỀN NÔNG QUANG VINH", 10,
-                Color.rgb(160, 202, 255), true);
+        TextView brandEyebrow = text("PERSONAL FILE TRANSFER", 9,
+                Color.rgb(151, 199, 255), true);
+        brandEyebrow.setLetterSpacing(0.17f);
+        brandBlock.addView(brandEyebrow);
+
+        TextView brand = text("NQV AirShare", 19, Color.WHITE, true);
+        brand.setLetterSpacing(0.01f);
+        LinearLayout.LayoutParams brandLp = params(-1, -2);
+        brandLp.topMargin = dp(2);
+        brandBlock.addView(brand, brandLp);
+
+        TextView copyrightTop = text("BẢN QUYỀN NÔNG QUANG VINH", 9,
+                Color.rgb(180, 207, 239), true);
+        copyrightTop.setLetterSpacing(0.07f);
         LinearLayout.LayoutParams copyTopLp = params(-1, -2);
         copyTopLp.topMargin = dp(4);
         brandBlock.addView(copyrightTop, copyTopLp);
 
-        TextView version = text("0.2.0", 11, Color.rgb(221, 238, 255), true);
+        TextView version = text("0.3.0", 10, Color.WHITE, true);
         version.setGravity(Gravity.CENTER);
-        version.setPadding(dp(12), dp(8), dp(12), dp(8));
-        version.setBackground(pillBackground(Color.argb(52, 139, 197, 255),
-                Color.argb(105, 180, 220, 255)));
+        version.setPadding(dp(13), dp(8), dp(13), dp(8));
+        version.setBackground(pillBackground(Color.argb(52, 142, 192, 255),
+                Color.argb(130, 205, 229, 255)));
         header.addView(version);
 
-        TextView title = text("Chia sẻ mọi nơi.", 30, Color.WHITE, true);
+        animateEntrance(logoFrame, 50);
+        animateEntrance(brandBlock, 100);
+        animateEntrance(version, 140);
+
+        // Hero panel
+        LinearLayout hero = glassCard();
+        LinearLayout.LayoutParams heroLp = params(-1, -2);
+        heroLp.topMargin = dp(27);
+        page.addView(hero, heroLp);
+
+        TextView heroEyebrow = text("A BEAUTIFUL WAY TO SHARE", 10,
+                Color.rgb(162, 211, 255), true);
+        heroEyebrow.setLetterSpacing(0.15f);
+        hero.addView(heroEyebrow);
+
+        TextView title = text("Chia sẻ tức thì.", 31, Color.WHITE, true);
+        title.setLetterSpacing(-0.025f);
         LinearLayout.LayoutParams titleLp = params(-1, -2);
-        titleLp.topMargin = dp(24);
-        page.addView(title, titleLp);
+        titleLp.topMargin = dp(9);
+        hero.addView(title, titleLp);
 
         TextView subtitle = text(
-                "Gửi ảnh và video gốc từ Vivo đến iPhone. iPhone chỉ cần Camera và Safari.",
-                14, Color.rgb(192, 210, 234), false);
+                "Chuyển ảnh và video nguyên bản từ Vivo đến iPhone. Không cần cài ứng dụng trên iPhone.",
+                14, Color.rgb(213, 228, 247), false);
+        subtitle.setLineSpacing(dp(3), 1.0f);
         LinearLayout.LayoutParams subtitleLp = params(-1, -2);
-        subtitleLp.topMargin = dp(7);
-        page.addView(subtitle, subtitleLp);
+        subtitleLp.topMargin = dp(8);
+        hero.addView(subtitle, subtitleLp);
 
+        LinearLayout heroChips = new LinearLayout(this);
+        heroChips.setGravity(Gravity.CENTER_VERTICAL);
+        heroChips.setOrientation(LinearLayout.HORIZONTAL);
+        LinearLayout.LayoutParams chipsLp = params(-1, -2);
+        chipsLp.topMargin = dp(16);
+        hero.addView(heroChips, chipsLp);
+        heroChips.addView(chip("✧  Không nén"));
+        View chipGap = new View(this);
+        heroChips.addView(chipGap, new LinearLayout.LayoutParams(dp(8), dp(1)));
+        heroChips.addView(chip("↗  QR & Safari"));
+        animateEntrance(hero, 190);
+
+        // Transfer mode selector
         LinearLayout modeCard = glassCard();
         LinearLayout.LayoutParams modeCardLp = params(-1, -2);
-        modeCardLp.topMargin = dp(22);
+        modeCardLp.topMargin = dp(17);
         page.addView(modeCard, modeCardLp);
 
-        TextView modeLabel = text("CHỌN PHƯƠNG THỨC", 11,
-                Color.rgb(160, 202, 255), true);
-        modeCard.addView(modeLabel);
+        LinearLayout modeHeading = new LinearLayout(this);
+        modeHeading.setGravity(Gravity.CENTER_VERTICAL);
+        modeCard.addView(modeHeading);
+
+        LinearLayout modeTitles = new LinearLayout(this);
+        modeTitles.setOrientation(LinearLayout.VERTICAL);
+        modeHeading.addView(modeTitles, new LinearLayout.LayoutParams(0, -2, 1f));
+        TextView modeLabel = text("PHƯƠNG THỨC TRUYỀN", 10,
+                Color.rgb(164, 207, 255), true);
+        modeLabel.setLetterSpacing(0.12f);
+        modeTitles.addView(modeLabel);
+        TextView modeHint = text("Chọn cách kết nối phù hợp", 12,
+                Color.rgb(183, 202, 228), false);
+        LinearLayout.LayoutParams modeHintLp = params(-1, -2);
+        modeHintLp.topMargin = dp(4);
+        modeTitles.addView(modeHint, modeHintLp);
+
+        TextView securePill = text("PRIVATE", 9, Color.rgb(181, 226, 255), true);
+        securePill.setPadding(dp(10), dp(7), dp(10), dp(7));
+        securePill.setBackground(pillBackground(Color.argb(42, 90, 160, 235),
+                Color.argb(90, 160, 205, 255)));
+        modeHeading.addView(securePill);
 
         LinearLayout tabs = new LinearLayout(this);
         tabs.setOrientation(LinearLayout.HORIZONTAL);
-        LinearLayout.LayoutParams tabsLp = params(-1, dp(48));
-        tabsLp.topMargin = dp(11);
+        LinearLayout.LayoutParams tabsLp = params(-1, dp(49));
+        tabsLp.topMargin = dp(15);
         modeCard.addView(tabs, tabsLp);
 
-        directTab = button("Wi-Fi trực tiếp", true);
-        remoteTab = button("Qua Internet", false);
+        directTab = button("⌁  Wi-Fi trực tiếp", true);
+        remoteTab = button("◎  Qua Internet", false);
         tabs.addView(directTab, new LinearLayout.LayoutParams(0, -1, 1f));
         LinearLayout.LayoutParams remoteTabLp = new LinearLayout.LayoutParams(0, -1, 1f);
         remoteTabLp.leftMargin = dp(8);
         tabs.addView(remoteTab, remoteTabLp);
         directTab.setOnClickListener(v -> selectMode(false));
         remoteTab.setOnClickListener(v -> selectMode(true));
+        animateEntrance(modeCard, 250);
 
+        // Direct transfer information
         directPanel = new LinearLayout(this);
         directPanel.setOrientation(LinearLayout.VERTICAL);
         LinearLayout.LayoutParams directLp = params(-1, -2);
@@ -231,22 +315,41 @@ public class MainActivity extends Activity {
 
         LinearLayout localInfo = glassCard();
         directPanel.addView(localInfo);
-        TextView localHeading = text("TRUYỀN TRỰC TIẾP", 12,
-                Color.rgb(160, 202, 255), true);
-        localInfo.addView(localHeading);
+
+        LinearLayout localHeadingRow = new LinearLayout(this);
+        localHeadingRow.setGravity(Gravity.CENTER_VERTICAL);
+        localInfo.addView(localHeadingRow);
+        TextView localIcon = text("⌁", 22, Color.rgb(153, 210, 255), true);
+        localIcon.setGravity(Gravity.CENTER);
+        localHeadingRow.addView(localIcon, new LinearLayout.LayoutParams(dp(36), dp(36)));
+        LinearLayout localTitles = new LinearLayout(this);
+        localTitles.setOrientation(LinearLayout.VERTICAL);
+        LinearLayout.LayoutParams localTitlesLp = new LinearLayout.LayoutParams(0, -2, 1f);
+        localTitlesLp.leftMargin = dp(8);
+        localHeadingRow.addView(localTitles, localTitlesLp);
+        TextView localHeading = text("Truyền trực tiếp", 15, Color.WHITE, true);
+        localTitles.addView(localHeading);
+        TextView localSub = text("Không cần Internet", 11,
+                Color.rgb(154, 207, 255), false);
+        LinearLayout.LayoutParams localSubLp = params(-1, -2);
+        localSubLp.topMargin = dp(3);
+        localTitles.addView(localSub, localSubLp);
+
         TextView localDescription = text(
-                "Không cần Internet. Bật điểm phát sóng trên Vivo, kết nối iPhone vào Wi-Fi đó, rồi quét mã QR.",
-                14, Color.rgb(228, 238, 251), false);
+                "Bật điểm phát sóng trên Vivo, kết nối iPhone vào Wi-Fi đó, sau đó quét mã QR bằng Camera.",
+                13, Color.rgb(207, 224, 246), false);
+        localDescription.setLineSpacing(dp(3), 1.0f);
         LinearLayout.LayoutParams localDescLp = params(-1, -2);
-        localDescLp.topMargin = dp(8);
+        localDescLp.topMargin = dp(13);
         localInfo.addView(localDescription, localDescLp);
 
         Button wifiButton = button("Mở cài đặt Wi-Fi / điểm phát sóng", false);
-        LinearLayout.LayoutParams wifiLp = params(-1, dp(46));
-        wifiLp.topMargin = dp(12);
+        LinearLayout.LayoutParams wifiLp = params(-1, dp(47));
+        wifiLp.topMargin = dp(13);
         localInfo.addView(wifiButton, wifiLp);
         wifiButton.setOnClickListener(v -> openWirelessSettings());
 
+        // Remote transfer information
         remotePanel = new LinearLayout(this);
         remotePanel.setOrientation(LinearLayout.VERTICAL);
         LinearLayout.LayoutParams remoteLp = params(-1, -2);
@@ -255,18 +358,37 @@ public class MainActivity extends Activity {
 
         LinearLayout remoteInfo = glassCard();
         remotePanel.addView(remoteInfo);
-        TextView remoteHeading = text("TRUYỀN QUA INTERNET", 12,
-                Color.rgb(160, 202, 255), true);
-        remoteInfo.addView(remoteHeading);
+
+        LinearLayout remoteHeadingRow = new LinearLayout(this);
+        remoteHeadingRow.setGravity(Gravity.CENTER_VERTICAL);
+        remoteInfo.addView(remoteHeadingRow);
+        TextView remoteIcon = text("◎", 21, Color.rgb(173, 190, 255), true);
+        remoteIcon.setGravity(Gravity.CENTER);
+        remoteHeadingRow.addView(remoteIcon, new LinearLayout.LayoutParams(dp(36), dp(36)));
+        LinearLayout remoteTitles = new LinearLayout(this);
+        remoteTitles.setOrientation(LinearLayout.VERTICAL);
+        LinearLayout.LayoutParams remoteTitlesLp = new LinearLayout.LayoutParams(0, -2, 1f);
+        remoteTitlesLp.leftMargin = dp(8);
+        remoteHeadingRow.addView(remoteTitles, remoteTitlesLp);
+        TextView remoteHeading = text("Truyền qua Internet", 15, Color.WHITE, true);
+        remoteTitles.addView(remoteHeading);
+        TextView remoteSub = text("Khác mạng vẫn gửi được", 11,
+                Color.rgb(184, 194, 255), false);
+        LinearLayout.LayoutParams remoteSubLp = params(-1, -2);
+        remoteSubLp.topMargin = dp(3);
+        remoteTitles.addView(remoteSub, remoteSubLp);
+
         TextView remoteDescription = text(
-                "Hai điện thoại có thể ở hai mạng khác nhau. Tệp được tải lên kho lưu trữ riêng tư qua HTTPS, sau đó iPhone mở liên kết bằng Safari.",
-                14, Color.rgb(228, 238, 251), false);
+                "Tệp được tải lên kho lưu trữ riêng tư qua HTTPS. iPhone nhận bằng Safari, không cần cài app.",
+                13, Color.rgb(207, 224, 246), false);
+        remoteDescription.setLineSpacing(dp(3), 1.0f);
         LinearLayout.LayoutParams remoteDescLp = params(-1, -2);
-        remoteDescLp.topMargin = dp(8);
+        remoteDescLp.topMargin = dp(13);
         remoteInfo.addView(remoteDescription, remoteDescLp);
 
-        TextView workerLabel = text("ĐỊA CHỈ CLOUDFLARE WORKER", 10,
-                Color.rgb(178, 207, 239), true);
+        TextView workerLabel = text("ĐỊA CHỈ CLOUDFLARE WORKER", 9,
+                Color.rgb(173, 204, 239), true);
+        workerLabel.setLetterSpacing(0.10f);
         LinearLayout.LayoutParams workerLabelLp = params(-1, -2);
         workerLabelLp.topMargin = dp(15);
         remoteInfo.addView(workerLabel, workerLabelLp);
@@ -275,39 +397,49 @@ public class MainActivity extends Activity {
         workerInput.setSingleLine(true);
         workerInput.setTextSize(13);
         workerInput.setTextColor(Color.WHITE);
-        workerInput.setHintTextColor(Color.rgb(145, 165, 193));
+        workerInput.setHintTextColor(Color.rgb(143, 166, 199));
         workerInput.setHint("https://ten-worker.ten-tai-khoan.workers.dev");
-        workerInput.setPadding(dp(13), dp(10), dp(13), dp(10));
+        workerInput.setPadding(dp(14), dp(10), dp(14), dp(10));
         workerInput.setBackground(glassInputBackground());
         workerInput.setInputType(0x00000011);
         String savedWorker = getPreferences(MODE_PRIVATE).getString(PREF_WORKER_URL, "");
         workerInput.setText(savedWorker);
-        LinearLayout.LayoutParams workerInputLp = params(-1, dp(48));
+        LinearLayout.LayoutParams workerInputLp = params(-1, dp(49));
         workerInputLp.topMargin = dp(8);
         remoteInfo.addView(workerInput, workerInputLp);
 
-        Button saveWorkerButton = button("LƯU ĐỊA CHỈ MÁY CHỦ", false);
+        Button saveWorkerButton = button("Lưu địa chỉ máy chủ", false);
         LinearLayout.LayoutParams saveWorkerLp = params(-1, dp(44));
         saveWorkerLp.topMargin = dp(8);
         remoteInfo.addView(saveWorkerButton, saveWorkerLp);
         saveWorkerButton.setOnClickListener(v -> saveWorkerAddress());
 
         TextView remoteNote = text(
-                "Mỗi tệp tối đa 5 GiB theo cấu hình máy chủ hiện có. Liên kết mặc định tự hết hạn sau 24 giờ.",
-                11, Color.rgb(178, 199, 224), false);
+                "Tối đa 5 GiB mỗi tệp theo cấu hình máy chủ. Liên kết mặc định hết hạn sau 24 giờ.",
+                11, Color.rgb(171, 195, 224), false);
+        remoteNote.setLineSpacing(dp(2), 1.0f);
         LinearLayout.LayoutParams remoteNoteLp = params(-1, -2);
-        remoteNoteLp.topMargin = dp(10);
+        remoteNoteLp.topMargin = dp(11);
         remoteInfo.addView(remoteNote, remoteNoteLp);
+
+        // File picker and selected file list
+        LinearLayout filesHeading = sectionHeader("Tệp của bạn",
+                "Ảnh và video được giữ nguyên dữ liệu gốc");
+        LinearLayout.LayoutParams filesHeadingLp = params(-1, -2);
+        filesHeadingLp.topMargin = dp(24);
+        page.addView(filesHeading, filesHeadingLp);
 
         Button pickButton = button("＋   Chọn ảnh và video", true);
         LinearLayout.LayoutParams pickLp = params(-1, dp(56));
-        pickLp.topMargin = dp(18);
+        pickLp.topMargin = dp(13);
         page.addView(pickButton, pickLp);
         pickButton.setOnClickListener(v -> openPicker());
 
-        selectedCount = text("Chưa chọn tệp", 13, Color.WHITE, true);
+        selectedCount = text("CHƯA CHỌN TỆP", 10,
+                Color.rgb(173, 207, 246), true);
+        selectedCount.setLetterSpacing(0.10f);
         LinearLayout.LayoutParams countLp = params(-1, -2);
-        countLp.topMargin = dp(18);
+        countLp.topMargin = dp(17);
         page.addView(selectedCount, countLp);
 
         fileList = new LinearLayout(this);
@@ -316,69 +448,73 @@ public class MainActivity extends Activity {
         fileListLp.topMargin = dp(9);
         page.addView(fileList, fileListLp);
 
-        startDirectButton = button("TẠO MÃ QR · WIFI TRỰC TIẾP", true);
-        LinearLayout.LayoutParams directButtonLp = params(-1, dp(54));
+        startDirectButton = button("TẠO MÃ QR  ·  WI-FI TRỰC TIẾP", true);
+        LinearLayout.LayoutParams directButtonLp = params(-1, dp(56));
         directButtonLp.topMargin = dp(16);
         page.addView(startDirectButton, directButtonLp);
         startDirectButton.setOnClickListener(v -> startDirectSharing());
 
-        startRemoteButton = button("GỬI QUA INTERNET", true);
-        LinearLayout.LayoutParams remoteButtonLp = params(-1, dp(54));
+        startRemoteButton = button("GỬI FILE QUA INTERNET", true);
+        LinearLayout.LayoutParams remoteButtonLp = params(-1, dp(56));
         remoteButtonLp.topMargin = dp(16);
         page.addView(startRemoteButton, remoteButtonLp);
         startRemoteButton.setOnClickListener(v -> startRemoteUpload());
 
+        // QR result panel
         qrCard = glassCard();
         LinearLayout.LayoutParams qrCardLp = params(-1, -2);
-        qrCardLp.topMargin = dp(16);
+        qrCardLp.topMargin = dp(17);
         page.addView(qrCard, qrCardLp);
 
-        TextView qrHeading = text("MÃ KẾT NỐI CỦA BẠN", 11,
-                Color.rgb(160, 202, 255), true);
+        TextView qrHeading = text("MÃ KẾT NỐI CỦA BẠN", 10,
+                Color.rgb(171, 212, 255), true);
+        qrHeading.setLetterSpacing(0.12f);
         qrCard.addView(qrHeading);
 
         qrImage = new ImageView(this);
         qrImage.setScaleType(ImageView.ScaleType.FIT_CENTER);
-        qrImage.setBackgroundColor(Color.WHITE);
-        qrImage.setPadding(dp(10), dp(10), dp(10), dp(10));
+        qrImage.setBackground(pillBackground(Color.WHITE, Color.rgb(225, 238, 255)));
+        qrImage.setPadding(dp(12), dp(12), dp(12), dp(12));
         qrImage.setVisibility(View.GONE);
-        LinearLayout.LayoutParams qrImageLp = new LinearLayout.LayoutParams(dp(230), dp(230));
+        LinearLayout.LayoutParams qrImageLp = new LinearLayout.LayoutParams(dp(236), dp(236));
         qrImageLp.gravity = Gravity.CENTER_HORIZONTAL;
-        qrImageLp.topMargin = dp(14);
+        qrImageLp.topMargin = dp(16);
         qrCard.addView(qrImage, qrImageLp);
 
         addressText = text("", 12, Color.WHITE, false);
         addressText.setTextIsSelectable(true);
         addressText.setGravity(Gravity.CENTER);
         LinearLayout.LayoutParams addressLp = params(-1, -2);
-        addressLp.topMargin = dp(12);
+        addressLp.topMargin = dp(13);
         qrCard.addView(addressText, addressLp);
 
-        expiryText = text("", 11, Color.rgb(177, 201, 230), false);
+        expiryText = text("", 11, Color.rgb(183, 206, 237), false);
         expiryText.setGravity(Gravity.CENTER);
         LinearLayout.LayoutParams expiryLp = params(-1, -2);
         expiryLp.topMargin = dp(6);
         qrCard.addView(expiryText, expiryLp);
 
-        copyButton = button("SAO CHÉP LIÊN KẾT", false);
-        LinearLayout.LayoutParams copyLp = params(-1, dp(44));
-        copyLp.topMargin = dp(10);
+        copyButton = button("Sao chép liên kết", false);
+        LinearLayout.LayoutParams copyLp = params(-1, dp(46));
+        copyLp.topMargin = dp(12);
         qrCard.addView(copyButton, copyLp);
         copyButton.setOnClickListener(v -> copyAddress());
 
-        stopButton = button("DỪNG CHIA SẺ", false);
+        stopButton = button("Dừng chia sẻ", false);
         LinearLayout.LayoutParams stopLp = params(-1, dp(44));
         stopLp.topMargin = dp(8);
         qrCard.addView(stopButton, stopLp);
         stopButton.setOnClickListener(v -> stopSharing(true));
 
+        // Transfer statistics
         LinearLayout progressCard = glassCard();
         LinearLayout.LayoutParams progressCardLp = params(-1, -2);
         progressCardLp.topMargin = dp(16);
         page.addView(progressCard, progressCardLp);
 
-        TextView progressHeading = text("TRẠNG THÁI TRUYỀN", 11,
-                Color.rgb(160, 202, 255), true);
+        TextView progressHeading = text("TIẾN TRÌNH TRUYỀN", 10,
+                Color.rgb(164, 207, 255), true);
+        progressHeading.setLetterSpacing(0.12f);
         progressCard.addView(progressHeading);
 
         transferProgress = new ProgressBar(this, null,
@@ -386,62 +522,119 @@ public class MainActivity extends Activity {
         transferProgress.setMax(100);
         transferProgress.setProgress(0);
         transferProgress.setProgressTintList(android.content.res.ColorStateList.valueOf(
-                Color.rgb(112, 190, 255)));
+                Color.rgb(123, 199, 255)));
         transferProgress.setProgressBackgroundTintList(
-                android.content.res.ColorStateList.valueOf(Color.argb(70, 220, 235, 255)));
+                android.content.res.ColorStateList.valueOf(Color.argb(62, 220, 235, 255)));
         LinearLayout.LayoutParams progressBarLp = params(-1, dp(8));
-        progressBarLp.topMargin = dp(13);
+        progressBarLp.topMargin = dp(14);
         progressCard.addView(transferProgress, progressBarLp);
 
         progressText = text("Chưa có dữ liệu truyền", 12,
-                Color.rgb(221, 233, 249), false);
+                Color.rgb(215, 230, 249), false);
         LinearLayout.LayoutParams progressTextLp = params(-1, -2);
-        progressTextLp.topMargin = dp(9);
+        progressTextLp.topMargin = dp(10);
         progressCard.addView(progressText, progressTextLp);
 
         speedText = text("Tốc độ hiện tại  —", 12,
-                Color.rgb(164, 205, 245), true);
+                Color.rgb(157, 204, 249), true);
         LinearLayout.LayoutParams speedLp = params(-1, -2);
         speedLp.topMargin = dp(5);
         progressCard.addView(speedText, speedLp);
 
+        // Created internet links
         LinearLayout resultsCard = glassCard();
         LinearLayout.LayoutParams resultsLp = params(-1, -2);
         resultsLp.topMargin = dp(16);
         page.addView(resultsCard, resultsLp);
-        TextView resultsHeading = text("LIÊN KẾT ĐÃ TẠO", 11,
-                Color.rgb(160, 202, 255), true);
+        TextView resultsHeading = text("LIÊN KẾT ĐÃ TẠO", 10,
+                Color.rgb(164, 207, 255), true);
+        resultsHeading.setLetterSpacing(0.12f);
         resultsCard.addView(resultsHeading);
         resultList = new LinearLayout(this);
         resultList.setOrientation(LinearLayout.VERTICAL);
         LinearLayout.LayoutParams resultListLp = params(-1, -2);
-        resultListLp.topMargin = dp(8);
+        resultListLp.topMargin = dp(10);
         resultsCard.addView(resultList, resultListLp);
         resultsCard.setVisibility(View.GONE);
 
+        // Status panel
         LinearLayout statusCard = glassCard();
         LinearLayout.LayoutParams statusLp = params(-1, -2);
         statusLp.topMargin = dp(16);
         page.addView(statusCard, statusLp);
-        TextView statusHeading = text("THÔNG BÁO", 10,
-                Color.rgb(160, 202, 255), true);
-        statusCard.addView(statusHeading);
-        statusText = text("Sẵn sàng", 13,
-                Color.rgb(220, 234, 250), false);
+
+        LinearLayout statusRow = new LinearLayout(this);
+        statusRow.setGravity(Gravity.CENTER_VERTICAL);
+        statusCard.addView(statusRow);
+        TextView statusDot = text("●", 9, Color.rgb(113, 225, 185), true);
+        statusRow.addView(statusDot);
+        TextView statusHeading = text("  TRẠNG THÁI HỆ THỐNG", 10,
+                Color.rgb(164, 207, 255), true);
+        statusHeading.setLetterSpacing(0.10f);
+        statusRow.addView(statusHeading);
+
+        statusText = text("Sẵn sàng", 12,
+                Color.rgb(219, 232, 250), false);
         LinearLayout.LayoutParams statusTextLp = params(-1, -2);
-        statusTextLp.topMargin = dp(7);
+        statusTextLp.topMargin = dp(9);
         statusCard.addView(statusText, statusTextLp);
 
-        TextView footer = text("© Nông Quang Vinh  ·  NQV AirShare 0.2.0", 11,
-                Color.rgb(153, 177, 208), false);
+        TextView footer = text("© NÔNG QUANG VINH", 10,
+                Color.rgb(161, 188, 222), true);
+        footer.setLetterSpacing(0.18f);
         footer.setGravity(Gravity.CENTER);
         LinearLayout.LayoutParams footerLp = params(-1, -2);
-        footerLp.topMargin = dp(25);
+        footerLp.topMargin = dp(28);
         page.addView(footer, footerLp);
 
-        setContentView(scroll);
+        TextView footerSub = text("NQV AIRSHARE  ·  SHARE WITH EASE", 9,
+                Color.rgb(107, 138, 179), false);
+        footerSub.setLetterSpacing(0.12f);
+        footerSub.setGravity(Gravity.CENTER);
+        LinearLayout.LayoutParams footerSubLp = params(-1, -2);
+        footerSubLp.topMargin = dp(7);
+        page.addView(footerSub, footerSubLp);
+
+        setContentView(root);
         qrCard.setVisibility(View.GONE);
         selectMode(false);
+
+        animateEntrance(filesHeading, 320);
+        animateEntrance(pickButton, 360);
+        animateEntrance(progressCard, 430);
+        animateEntrance(statusCard, 480);
+    }
+
+    private void animateEntrance(View view, long delayMs) {
+        if (view == null) return;
+        view.setAlpha(0f);
+        view.setTranslationY(dp(10));
+        view.animate().alpha(1f).translationY(0f)
+                .setStartDelay(delayMs)
+                .setDuration(480)
+                .setInterpolator(new DecelerateInterpolator())
+                .start();
+    }
+
+    private TextView chip(String label) {
+        TextView view = text(label, 10, Color.rgb(220, 237, 255), true);
+        view.setPadding(dp(11), dp(8), dp(11), dp(8));
+        view.setBackground(pillBackground(Color.argb(44, 169, 213, 255),
+                Color.argb(80, 213, 237, 255)));
+        return view;
+    }
+
+    private LinearLayout sectionHeader(String heading, String subtitle) {
+        LinearLayout block = new LinearLayout(this);
+        block.setOrientation(LinearLayout.VERTICAL);
+        TextView title = text(heading, 18, Color.WHITE, true);
+        title.setLetterSpacing(-0.01f);
+        block.addView(title);
+        TextView detail = text(subtitle, 11, Color.rgb(165, 190, 222), false);
+        LinearLayout.LayoutParams detailLp = params(-1, -2);
+        detailLp.topMargin = dp(4);
+        block.addView(detail, detailLp);
+        return block;
     }
 
     private void selectMode(boolean remote) {
@@ -1039,45 +1232,51 @@ public class MainActivity extends Activity {
     }
 
     private LinearLayout glassCard() {
-        LinearLayout layout = new LinearLayout(this);
+        GlassPanel layout = new GlassPanel(this);
         layout.setOrientation(LinearLayout.VERTICAL);
-        layout.setPadding(dp(16), dp(16), dp(16), dp(16));
+        layout.setPadding(dp(17), dp(17), dp(17), dp(17));
         layout.setBackground(glassBackground());
-        layout.setElevation(dp(4));
+        layout.setElevation(dp(8));
+        layout.setClipToOutline(true);
         return layout;
     }
 
     private GradientDrawable glassBackground() {
         GradientDrawable bg = new GradientDrawable(
                 GradientDrawable.Orientation.TL_BR,
-                new int[]{Color.argb(54, 255, 255, 255),
-                        Color.argb(26, 194, 220, 255),
-                        Color.argb(39, 255, 255, 255)});
-        bg.setCornerRadius(dp(22));
-        bg.setStroke(dp(1), Color.argb(72, 225, 240, 255));
+                new int[]{
+                        Color.argb(78, 255, 255, 255),
+                        Color.argb(34, 213, 231, 255),
+                        Color.argb(55, 165, 202, 255),
+                        Color.argb(30, 255, 255, 255)
+                });
+        bg.setCornerRadius(dp(25));
+        bg.setStroke(dp(1), Color.argb(110, 228, 243, 255));
         return bg;
     }
 
     private GradientDrawable glassRowBackground() {
-        GradientDrawable bg = new GradientDrawable();
-        bg.setColor(Color.argb(43, 240, 247, 255));
-        bg.setCornerRadius(dp(15));
-        bg.setStroke(dp(1), Color.argb(48, 230, 241, 255));
+        GradientDrawable bg = new GradientDrawable(
+                GradientDrawable.Orientation.LEFT_RIGHT,
+                new int[]{Color.argb(56, 255, 255, 255), Color.argb(26, 187, 220, 255)});
+        bg.setCornerRadius(dp(17));
+        bg.setStroke(dp(1), Color.argb(68, 225, 240, 255));
         return bg;
     }
 
     private GradientDrawable glassInputBackground() {
-        GradientDrawable bg = new GradientDrawable();
-        bg.setColor(Color.argb(45, 255, 255, 255));
-        bg.setCornerRadius(dp(13));
-        bg.setStroke(dp(1), Color.argb(80, 220, 236, 255));
+        GradientDrawable bg = new GradientDrawable(
+                GradientDrawable.Orientation.LEFT_RIGHT,
+                new int[]{Color.argb(62, 255, 255, 255), Color.argb(34, 190, 219, 255)});
+        bg.setCornerRadius(dp(15));
+        bg.setStroke(dp(1), Color.argb(95, 220, 236, 255));
         return bg;
     }
 
     private GradientDrawable pillBackground(int fill, int stroke) {
         GradientDrawable bg = new GradientDrawable();
         bg.setColor(fill);
-        bg.setCornerRadius(dp(30));
+        bg.setCornerRadius(dp(40));
         bg.setStroke(dp(1), stroke);
         return bg;
     }
@@ -1086,12 +1285,12 @@ public class MainActivity extends Activity {
         GradientDrawable bg = new GradientDrawable(
                 GradientDrawable.Orientation.LEFT_RIGHT,
                 primary
-                        ? new int[]{Color.rgb(151, 211, 255), Color.rgb(110, 174, 247)}
-                        : new int[]{Color.argb(54, 255, 255, 255), Color.argb(32, 255, 255, 255)});
-        bg.setCornerRadius(dp(15));
+                        ? new int[]{Color.rgb(185, 225, 255), Color.rgb(117, 185, 255), Color.rgb(135, 163, 255)}
+                        : new int[]{Color.argb(70, 255, 255, 255), Color.argb(35, 214, 233, 255)});
+        bg.setCornerRadius(dp(17));
         bg.setStroke(dp(1), primary
-                ? Color.argb(150, 213, 238, 255)
-                : Color.argb(70, 225, 240, 255));
+                ? Color.argb(190, 226, 245, 255)
+                : Color.argb(82, 225, 240, 255));
         return bg;
     }
 
@@ -1100,11 +1299,119 @@ public class MainActivity extends Activity {
         button.setText(label);
         button.setTextSize(12);
         button.setAllCaps(false);
-        button.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
-        button.setTextColor(primary ? Color.rgb(7, 25, 48) : Color.rgb(225, 238, 255));
-        button.setBackground(buttonBackground(primary));
-        button.setPadding(dp(10), dp(7), dp(10), dp(7));
+        button.setTypeface(Typeface.create("sans-serif-medium", Typeface.NORMAL));
+        button.setLetterSpacing(0.015f);
+        button.setTextColor(primary ? Color.rgb(8, 26, 49) : Color.rgb(231, 241, 255));
+        button.setBackground(new RippleDrawable(
+                ColorStateList.valueOf(Color.argb(52, 255, 255, 255)),
+                buttonBackground(primary), null));
+        button.setPadding(dp(13), dp(8), dp(13), dp(8));
+        button.setElevation(primary ? dp(3) : dp(1));
+        button.setMinimumHeight(dp(42));
         return button;
+    }
+
+    private class GlassPanel extends LinearLayout {
+        private final Paint glossPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+
+        GlassPanel(Context context) {
+            super(context);
+            setWillNotDraw(false);
+        }
+
+        @Override
+        protected void dispatchDraw(Canvas canvas) {
+            super.dispatchDraw(canvas);
+            float density = getResources().getDisplayMetrics().density;
+            float y = 1.2f * density;
+            glossPaint.setShader(new LinearGradient(
+                    0, y, getWidth(), y,
+                    new int[]{
+                            Color.argb(0, 255, 255, 255),
+                            Color.argb(155, 255, 255, 255),
+                            Color.argb(44, 213, 235, 255),
+                            Color.argb(0, 255, 255, 255)
+                    },
+                    null, Shader.TileMode.CLAMP));
+            glossPaint.setStrokeWidth(1.1f * density);
+            canvas.drawLine(dp(20), y, getWidth() - dp(20), y, glossPaint);
+            glossPaint.setShader(null);
+        }
+    }
+
+    private static class AuroraBackground extends View {
+        private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        private float phase = 0f;
+        private ValueAnimator animator;
+
+        AuroraBackground(Context context) {
+            super(context);
+            setLayerType(View.LAYER_TYPE_HARDWARE, null);
+        }
+
+        @Override
+        protected void onAttachedToWindow() {
+            super.onAttachedToWindow();
+            if (animator != null) animator.cancel();
+            animator = ValueAnimator.ofFloat(0f, 1f);
+            animator.setDuration(26000L);
+            animator.setRepeatCount(ValueAnimator.INFINITE);
+            animator.setInterpolator(new LinearInterpolator());
+            animator.addUpdateListener(value -> {
+                phase = (Float) value.getAnimatedValue();
+                invalidate();
+            });
+            animator.start();
+        }
+
+        @Override
+        protected void onDetachedFromWindow() {
+            if (animator != null) {
+                animator.cancel();
+                animator = null;
+            }
+            super.onDetachedFromWindow();
+        }
+
+        @Override
+        protected void onDraw(Canvas canvas) {
+            super.onDraw(canvas);
+            float w = getWidth();
+            float h = getHeight();
+            if (w <= 0 || h <= 0) return;
+
+            canvas.drawColor(Color.rgb(7, 12, 27));
+            float wave = (float) Math.sin(phase * Math.PI * 2.0);
+            float wave2 = (float) Math.cos(phase * Math.PI * 2.0);
+
+            drawGlow(canvas, w * (0.18f + 0.08f * wave), h * 0.16f,
+                    Math.max(w, h) * 0.70f,
+                    new int[]{Color.argb(105, 42, 117, 222),
+                            Color.argb(40, 49, 104, 195), Color.TRANSPARENT});
+            drawGlow(canvas, w * (0.88f + 0.05f * wave2), h * 0.42f,
+                    Math.max(w, h) * 0.62f,
+                    new int[]{Color.argb(88, 98, 81, 212),
+                            Color.argb(30, 77, 87, 183), Color.TRANSPARENT});
+            drawGlow(canvas, w * (0.42f - 0.04f * wave2), h * 0.88f,
+                    Math.max(w, h) * 0.58f,
+                    new int[]{Color.argb(70, 31, 155, 188),
+                            Color.argb(24, 31, 135, 177), Color.TRANSPARENT});
+
+            paint.setShader(new LinearGradient(0, 0, w, h,
+                    new int[]{Color.argb(20, 255, 255, 255), Color.TRANSPARENT,
+                            Color.argb(12, 162, 211, 255)},
+                    null, Shader.TileMode.CLAMP));
+            canvas.drawRect(0, 0, w, h, paint);
+            paint.setShader(null);
+        }
+
+        private void drawGlow(Canvas canvas, float cx, float cy,
+                              float radius, int[] colors) {
+            paint.setShader(new RadialGradient(cx, cy, radius, colors,
+                    new float[]{0f, 0.48f, 1f}, Shader.TileMode.CLAMP));
+            canvas.drawCircle(cx, cy, radius, paint);
+            paint.setShader(null);
+        }
     }
 
     private LinearLayout.LayoutParams params(int width, int height) {
@@ -1253,7 +1560,7 @@ public class MainActivity extends Activity {
             html.append("<section class='note'><b>Lưu vào iPhone</b><br>")
                     .append("Sau khi tải xong, mở ứng dụng Tệp (Files). Bạn có thể dùng Chia sẻ để lưu ảnh hoặc video vào thư viện Ảnh.<br><br>")
                     .append("Giữ NQV AirShare mở trên Vivo cho đến khi tải hoàn tất.</section>")
-                    .append("<div class='foot'>© Nông Quang Vinh · NQV AirShare 0.2.0</div></main></body></html>");
+                    .append("<div class='foot'>© Nông Quang Vinh · NQV AirShare 0.3.0</div></main></body></html>");
 
             Response response = newFixedLengthResponse(Response.Status.OK,
                     "text/html; charset=utf-8", html.toString());
