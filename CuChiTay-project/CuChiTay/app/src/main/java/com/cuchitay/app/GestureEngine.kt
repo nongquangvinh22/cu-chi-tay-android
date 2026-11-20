@@ -2,14 +2,16 @@ package com.cuchitay.app
 
 import com.google.mediapipe.tasks.components.containers.NormalizedLandmark
 import kotlin.math.abs
+import kotlin.math.max
+import kotlin.math.min
 import kotlin.math.sqrt
 
 enum class SwipeDir { UP, DOWN, LEFT, RIGHT }
 
 /**
  * Chuyển 21 landmark của MediaPipe thành cử chỉ.
- * Mỗi hướng vuốt được bật/tắt độc lập; thao tác chụp màn hình
- * vẫn là một cử chỉ riêng.
+ * Nhận diện dùng ngưỡng theo kích thước bàn tay, tốc độ, độ thẳng quỹ đạo
+ * và chờ tay ổn định trước khi nhận cú hất kế tiếp.
  */
 class GestureEngine(
     private val onSwipe: (SwipeDir) -> Unit,
@@ -23,26 +25,42 @@ class GestureEngine(
     @Volatile var invertVertical = false
     @Volatile var sensitivity = 1.0f
 
-    private class Sample(val t: Long, val x: Float, val y: Float)
+    private class Sample(val t: Long, val x: Float, val y: Float, val palmScale: Float)
+
+    private data class Average(
+        val first: Float,
+        val second: Float,
+        val third: Long,
+        val fourth: Float
+    )
 
     private val history = ArrayDeque<Sample>()
     private var smoothX: Float? = null
     private var smoothY: Float? = null
     private var lastSwipeAt = 0L
-    private var lastSwipeDir: SwipeDir? = null
     private var lastGrabAt = 0L
     private var lastOpenAt = 0L
     private var fistFrames = 0
+    private var awaitingRearm = false
+    private var stableSince = 0L
 
     companion object {
-        private const val WINDOW_MS = 360L
-        private const val MIN_TRAVEL = 0.21f
-        private const val MIN_SAMPLE_SPAN_MS = 75L
-        private const val SWIPE_COOLDOWN_MS = 430L
-        private const val REVERSE_LOCK_MS = 650L
+        private const val WINDOW_MS = 300L
+        private const val MIN_SAMPLE_SPAN_MS = 85L
+        private const val SWIPE_COOLDOWN_MS = 420L
+
+        private const val REARM_WINDOW_MS = 180L
+        private const val REARM_MIN_SPAN_MS = 105L
+        private const val REARM_STABLE_MS = 115L
+
+        private const val MIN_FLICK_SPEED = 0.38f
+        private const val MIN_DIRECTNESS = 0.56f
+        private const val AXIS_DOMINANCE = 1.22f
+        private const val SMOOTH_ALPHA = 0.48f
+        private const val FIRST_LAST_AVERAGE = 3
+
         private const val GRAB_WINDOW_MS = 1100L
         private const val GRAB_COOLDOWN_MS = 2200L
-        private const val SMOOTH_ALPHA = 0.72f
 
         private val FINGERS = arrayOf(
             intArrayOf(5, 6, 7, 8),
@@ -84,7 +102,7 @@ class GestureEngine(
 
         if (isOpen) lastOpenAt = now
 
-        // Xòe tay rồi nắm lại: chụp màn hình.
+        // Giữ nguyên thao tác xòe tay rồi nắm lại để chụp màn hình.
         if (grabEnabled) {
             if (isFist) {
                 fistFrames++
@@ -103,7 +121,6 @@ class GestureEngine(
             }
         }
 
-        // Chỉ theo dõi chuyển động khi tay đang xòe.
         if (!isOpen) {
             resetMotion()
             return
@@ -117,43 +134,72 @@ class GestureEngine(
         }
         cx /= PALM.size
         cy /= PALM.size
-        cx = 1f - cx // lật gương camera trước
+        cx = 1f - cx // Giữ quy ước lật gương camera trước.
 
+        val palmScale = dist(lm[0], lm[9], aspect).coerceIn(0.07f, 0.42f)
         val filteredX = smoothX?.let { it + SMOOTH_ALPHA * (cx - it) } ?: cx
         val filteredY = smoothY?.let { it + SMOOTH_ALPHA * (cy - it) } ?: cy
         smoothX = filteredX
         smoothY = filteredY
 
-        history.addLast(Sample(now, filteredX, filteredY))
+        history.addLast(Sample(now, filteredX, filteredY, palmScale))
+
+        if (awaitingRearm) {
+            while (history.isNotEmpty() && now - history.first().t > REARM_WINDOW_MS) {
+                history.removeFirst()
+            }
+            updateRearm(now, aspect)
+            return
+        }
+
         while (history.isNotEmpty() && now - history.first().t > WINDOW_MS) {
             history.removeFirst()
         }
 
-        if (history.size < 4) return
+        if (history.size < FIRST_LAST_AVERAGE * 2) return
         if (now - history.first().t < MIN_SAMPLE_SPAN_MS) return
         if (now - lastSwipeAt < SWIPE_COOLDOWN_MS) return
 
-        val first = history.first()
-        val dx = (filteredX - first.x) * aspect
-        val dy = filteredY - first.y
-        val threshold = MIN_TRAVEL / sensitivity.coerceIn(0.6f, 1.6f)
+        val samples = history.toList()
+        val start = average(samples, 0, FIRST_LAST_AVERAGE)
+        val end = average(samples, samples.size - FIRST_LAST_AVERAGE, samples.size)
 
-        val detectedDir: SwipeDir? = when {
-            abs(dy) >= threshold && abs(dy) > abs(dx) * 1.4f ->
+        // Quy đổi hai trục theo cùng tỷ lệ khung hình.
+        val dx = (end.first - start.first) * aspect
+        val dy = end.second - start.second
+        val travelX = abs(dx)
+        val travelY = abs(dy)
+        val travel = sqrt(dx * dx + dy * dy)
+
+        val sampleSpan = (end.third - start.third).coerceAtLeast(1L)
+        val speed = travel * 1000f / sampleSpan.toFloat()
+
+        // Đường đi càng thẳng và dứt khoát thì directness càng gần 1.
+        var pathLength = 0f
+        for (i in 1 until samples.size) {
+            val stepX = (samples[i].x - samples[i - 1].x) * aspect
+            val stepY = samples[i].y - samples[i - 1].y
+            pathLength += sqrt(stepX * stepX + stepY * stepY)
+        }
+        val directness = if (pathLength > 1e-4f) travel / pathLength else 0f
+
+        // Ngưỡng co giãn theo kích thước bàn tay và thiết lập độ nhạy.
+        val adjustedSensitivity = sensitivity.coerceIn(0.6f, 1.6f)
+        val threshold = travelThreshold(end.fourth, adjustedSensitivity)
+        val minSpeed = MIN_FLICK_SPEED / adjustedSensitivity
+
+        if (travel < threshold || speed < minSpeed || directness < MIN_DIRECTNESS) return
+
+        val detected: SwipeDir = when {
+            travelY >= threshold && travelY > travelX * AXIS_DOMINANCE ->
                 if (dy < 0f) SwipeDir.UP else SwipeDir.DOWN
-            abs(dx) >= threshold && abs(dx) > abs(dy) * 1.4f ->
+            travelX >= threshold && travelX > travelY * AXIS_DOMINANCE ->
                 if (dx > 0f) SwipeDir.RIGHT else SwipeDir.LEFT
-            else -> null
+            else -> return
         }
 
-        val detected = detectedDir ?: return
         if (!isDirectionEnabled(detected)) {
             resetMotion()
-            return
-        }
-
-        val last = lastSwipeDir
-        if (last != null && now - lastSwipeAt < REVERSE_LOCK_MS && detected == opposite(last)) {
             return
         }
 
@@ -167,16 +213,83 @@ class GestureEngine(
             detected
         }
 
-        // Đảo chiều cũng không được vượt qua công tắc độc lập của hướng đích.
+        // Đảo chiều vẫn phải tuân theo công tắc độc lập của hướng đích.
         if (!isDirectionEnabled(output)) {
             resetMotion()
             return
         }
 
         lastSwipeAt = now
-        lastSwipeDir = output
-        resetMotion()
+        awaitingRearm = true
+        stableSince = 0L
+        resetHistoryOnly()
         onSwipe(output)
+    }
+
+    private fun updateRearm(now: Long, aspect: Float) {
+        if (history.size < 4 || now - history.first().t < REARM_MIN_SPAN_MS) {
+            stableSince = 0L
+            return
+        }
+
+        val samples = history.toList()
+        var minX = Float.MAX_VALUE
+        var maxX = -Float.MAX_VALUE
+        var minY = Float.MAX_VALUE
+        var maxY = -Float.MAX_VALUE
+
+        for (sample in samples) {
+            val x = sample.x * aspect
+            minX = min(minX, x)
+            maxX = max(maxX, x)
+            minY = min(minY, sample.y)
+            maxY = max(maxY, sample.y)
+        }
+
+        val threshold = travelThreshold(samples.last().palmScale, sensitivity)
+        val stableLimit = (threshold * 0.24f).coerceIn(0.018f, 0.038f)
+        val stable = (maxX - minX) < stableLimit && (maxY - minY) < stableLimit
+
+        if (!stable) {
+            stableSince = 0L
+            return
+        }
+
+        if (stableSince == 0L) stableSince = now
+        if (now - stableSince >= REARM_STABLE_MS &&
+            now - lastSwipeAt >= SWIPE_COOLDOWN_MS
+        ) {
+            awaitingRearm = false
+            resetMotion()
+        }
+    }
+
+    private fun travelThreshold(palmScale: Float, sensitivityValue: Float): Float {
+        return (palmScale * 0.72f / sensitivityValue.coerceIn(0.6f, 1.6f))
+            .coerceIn(0.105f, 0.215f)
+    }
+
+    private fun average(samples: List<Sample>, from: Int, until: Int): Average {
+        var x = 0f
+        var y = 0f
+        var scale = 0f
+        var time = 0L
+        var count = 0
+        for (i in from until until) {
+            val sample = samples[i]
+            x += sample.x
+            y += sample.y
+            scale += sample.palmScale
+            time += sample.t
+            count++
+        }
+        val divisor = count.coerceAtLeast(1).toFloat()
+        return Average(
+            x / divisor,
+            y / divisor,
+            time / count.coerceAtLeast(1),
+            scale / divisor
+        )
     }
 
     private fun isDirectionEnabled(dir: SwipeDir): Boolean = when (dir) {
@@ -186,17 +299,15 @@ class GestureEngine(
         SwipeDir.RIGHT -> swipeRightEnabled
     }
 
-    private fun resetMotion() {
+    private fun resetHistoryOnly() {
         history.clear()
         smoothX = null
         smoothY = null
     }
 
-    private fun opposite(dir: SwipeDir): SwipeDir = when (dir) {
-        SwipeDir.UP -> SwipeDir.DOWN
-        SwipeDir.DOWN -> SwipeDir.UP
-        SwipeDir.LEFT -> SwipeDir.RIGHT
-        SwipeDir.RIGHT -> SwipeDir.LEFT
+    private fun resetMotion() {
+        resetHistoryOnly()
+        stableSince = 0L
     }
 
     private fun segmentAlignment(
