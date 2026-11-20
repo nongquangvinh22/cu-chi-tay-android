@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="ic_launcher_background">#102A43</color>
-    <color name="brand_navy">#08111F</color>
-    <color name="brand_blue">#0284C7</color>
-    <color name="brand_cyan">#38BDF8</color>
-    <color name="brand_mint">#34D399</color>
-    <color name="panel_bg">#E61B2B43</color>
+    <color name="brand_navy">#07101E</color>
+    <color name="brand_blue">#5DABFF</color>
+    <color name="brand_cyan">#83E9FF</color>
+    <color name="brand_mint">#82E7C5</color>
+    <color name="panel_bg">#26354E68</color>
+    <color name="status_good">#8DE7C5</color>
+    <color name="status_warning">#FFD39A</color>
 </resources>

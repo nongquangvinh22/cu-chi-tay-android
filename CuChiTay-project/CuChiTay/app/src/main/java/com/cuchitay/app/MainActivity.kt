@@ -9,6 +9,8 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.view.View
+import android.view.animation.DecelerateInterpolator
+import android.view.animation.OvershootInterpolator
 import android.widget.Button
 import android.widget.SeekBar
 import android.widget.Switch
@@ -87,7 +89,10 @@ class MainActivity : Activity() {
             override fun onStopTrackingTouch(bar: SeekBar?) {}
         })
 
-        btnToggle.setOnClickListener { toggle() }
+        btnToggle.setOnClickListener {
+            animateButtonFeedback()
+            toggle()
+        }
     }
 
     /**
@@ -126,12 +131,63 @@ class MainActivity : Activity() {
     }
 
     private fun bindSwitch(id: Int, key: String, default: Boolean) {
-        val switch = findViewById<Switch>(id)
-        switch.isChecked = prefs.getBoolean(key, default)
-        switch.setOnCheckedChangeListener { _, checked ->
+        val gestureSwitch = findViewById<Switch>(id)
+        val row = gestureSwitch.parent as? View
+        gestureSwitch.isChecked = prefs.getBoolean(key, default)
+        row?.isActivated = gestureSwitch.isChecked
+
+        gestureSwitch.setOnCheckedChangeListener { button, checked ->
             prefs.edit().putBoolean(key, checked).apply()
+            row?.isActivated = checked
+
+            // Thumb vẫn trượt theo animation gốc của Android; lớp nảy nhẹ làm phản hồi rõ hơn.
+            button.animate().cancel()
+            button.scaleX = 1f
+            button.scaleY = 1f
+            button.animate()
+                .scaleX(1.075f)
+                .scaleY(1.075f)
+                .setDuration(115)
+                .setInterpolator(OvershootInterpolator(1.45f))
+                .withEndAction {
+                    button.animate()
+                        .scaleX(1f)
+                        .scaleY(1f)
+                        .setDuration(165)
+                        .setInterpolator(DecelerateInterpolator())
+                        .start()
+                }
+                .start()
+
+            row?.animate()?.cancel()
+            row?.animate()
+                ?.translationY(if (checked) -dp(1.5f) else 0f)
+                ?.setDuration(170)
+                ?.setInterpolator(DecelerateInterpolator())
+                ?.start()
         }
     }
+
+    private fun animateButtonFeedback() {
+        btnToggle.animate().cancel()
+        btnToggle.scaleX = 1f
+        btnToggle.scaleY = 1f
+        btnToggle.animate()
+            .scaleX(0.985f)
+            .scaleY(0.985f)
+            .setDuration(75)
+            .withEndAction {
+                btnToggle.animate()
+                    .scaleX(1f)
+                    .scaleY(1f)
+                    .setDuration(175)
+                    .setInterpolator(OvershootInterpolator(1.15f))
+                    .start()
+            }
+            .start()
+    }
+
+    private fun dp(value: Float): Float = value * resources.displayMetrics.density
 
     private fun updateSensLabel(progress: Int) {
         tvSens.text = "Độ nhạy nhận diện: $progress%  ·  Sang phải để nhận diện nhạy hơn"
@@ -167,7 +223,7 @@ class MainActivity : Activity() {
             if (GestureAccessibilityService.instance == null) {
                 Toast.makeText(
                     this,
-                    "Hãy bật \"Cử Chỉ Tay\" trong cài đặt Trợ năng trước",
+                    "Hãy bật \\"Cử Chỉ Tay\\" trong cài đặt Trợ năng trước",
                     Toast.LENGTH_LONG
                 ).show()
                 startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
@@ -185,20 +241,29 @@ class MainActivity : Activity() {
 
     private fun refresh() {
         val cameraOk = hasCamera()
-        tvCam.text = if (cameraOk) "✅ Quyền camera: đã cấp" else "❌ Quyền camera: chưa cấp"
+        tvCam.text = if (cameraOk) "✓  Quyền camera: đã cấp" else "○  Quyền camera: chưa cấp"
+        tvCam.setTextColor(getColor(if (cameraOk) R.color.status_good else R.color.status_warning))
         btnCam.visibility = if (cameraOk) View.GONE else View.VISIBLE
 
         val accessibilityOk = GestureAccessibilityService.instance != null
         tvA11y.text = if (accessibilityOk) {
-            "✅ Trợ năng: đã bật"
+            "✓  Trợ năng: đã bật"
         } else {
-            "❌ Trợ năng: chưa bật (vào Cài đặt Trợ năng, chọn Cử Chỉ Tay rồi bật)"
+            "○  Trợ năng: chưa bật · Mở cài đặt và bật dịch vụ Cử Chỉ Tay"
         }
+        tvA11y.setTextColor(
+            getColor(if (accessibilityOk) R.color.status_good else R.color.status_warning)
+        )
 
-        btnToggle.text = if (GestureService.running) {
-            "TẮT điều khiển bằng cử chỉ"
+        val isRunning = GestureService.running
+        btnToggle.text = if (isRunning) {
+            "ĐANG HOẠT ĐỘNG  ·  CHẠM ĐỂ TẮT"
         } else {
-            "BẬT điều khiển bằng cử chỉ"
+            "BẬT ĐIỀU KHIỂN BẰNG CỬ CHỈ"
         }
+        btnToggle.setBackgroundResource(
+            if (isRunning) R.drawable.bg_button_stop else R.drawable.bg_button_primary
+        )
+        btnToggle.backgroundTintList = null
     }
 }

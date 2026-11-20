@@ -1,6 +1,10 @@
-# Cử Chỉ Tay – điều khiển điện thoại bằng cử chỉ trước camera
+# Cử Chỉ Tay 2.0 — Liquid Glass Edition
 
-Ứng dụng Android viết bằng Kotlin, dùng MediaPipe Hand Landmarker và Android Accessibility Service.
+Ứng dụng Android viết bằng Kotlin, dùng MediaPipe Hand Landmarker và Android Accessibility Service để điều khiển điện thoại bằng cử chỉ trước camera.
+
+## Phiên bản 2.0
+
+Bản 2.0 nâng cấp toàn diện giao diện theo cảm hứng Liquid Glass trên iPhone: nền chuyển sắc xanh đêm, các lớp thẻ kính trong mờ, đường viền phản sáng, biểu tượng đồng bộ, công tắc có track/thumb riêng và hiệu ứng phản hồi khi gạt. Bố cục được tối ưu cho màn hình điện thoại, giữ nguyên các chức năng và thao tác của phiên bản 1.2.
 
 ## Chức năng
 
@@ -13,7 +17,7 @@
 - **Độ nhạy nhận diện:** điều chỉnh ngưỡng bắt cử chỉ.
 - **Tốc độ cuộn:** điều chỉnh thời lượng vuốt; kéo sang phải để vuốt nhanh hơn.
 
-Ứng dụng tự chuyển thiết lập từ hai công tắc gộp của phiên bản 1.1 sang các công tắc riêng khi mở bản mới lần đầu. Các lựa chọn đã được lưu của người dùng được giữ nguyên.
+Ứng dụng tự chuyển thiết lập từ hai công tắc gộp của phiên bản 1.1 sang các công tắc riêng khi mở bản mới lần đầu. Các lựa chọn đã được lưu của người dùng được giữ nguyên khi nâng cấp.
 
 Ảnh camera được xử lý tại chỗ trong bộ nhớ, không lưu và không gửi lên máy chủ. Dịch vụ chỉ thực hiện thao tác vuốt và chụp màn hình theo cử chỉ, không đọc nội dung màn hình.
 
@@ -21,7 +25,7 @@
 
 1. Mở tab **Actions** của repository.
 2. Chọn workflow **Build Cử Chỉ Tay APK**.
-3. Chọn **Run workflow** nếu muốn chủ động build lại. Các thay đổi trong thư mục dự án cũng tự kích hoạt workflow.
+3. Các thay đổi trong thư mục dự án tự kích hoạt workflow build.
 4. Mở lần chạy mới nhất. Khi trạng thái hoàn tất thành công, vào **Artifacts** và tải **CuChiTay-apk-v3**.
 5. Giải nén tệp ZIP để lấy app-debug.apk, sau đó chuyển sang điện thoại và cài đặt.
 
