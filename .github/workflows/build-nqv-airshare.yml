@@ -1,4 +1,4 @@
-name: Build NQV AirShare APK
+name: Build NQV AirShare 0.2.0
 
 on:
   workflow_dispatch:
@@ -46,24 +46,25 @@ jobs:
           "$SDKMANAGER" --sdk_root="$ANDROID_HOME" --install \
             "platform-tools" "platforms;android-35" "build-tools;35.0.0"
 
-      - name: Build debug APK
-        run: gradle --no-daemon --stacktrace assembleDebug
+      - name: Build optimized release APK
+        run: gradle --no-daemon --stacktrace assembleRelease
 
-      - name: Upload APK artifact
+      - name: Upload release APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: NQV-AirShare-v0.1.0-APK
-          path: NQV-AirShare/app/build/outputs/apk/debug/app-debug.apk
+          name: NQV-AirShare-v0.2.0-Release
+          path: NQV-AirShare/app/build/outputs/apk/release/app-release.apk
           if-no-files-found: error
           retention-days: 30
 
-      - name: Publish GitHub prerelease with APK
+      - name: Publish stable GitHub release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: nqv-airshare-v0.1.0-build-${{ github.run_number }}
-          name: NQV AirShare v0.1.0 (build ${{ github.run_number }})
+          tag_name: nqv-airshare-0.2.0-build-${{ github.run_number }}
+          name: NQV AirShare 0.2.0
           target_commitish: main
-          prerelease: true
+          prerelease: false
+          make_latest: true
           generate_release_notes: true
           fail_on_unmatched_files: true
-          files: NQV-AirShare/app/build/outputs/apk/debug/app-debug.apk
+          files: NQV-AirShare/app/build/outputs/apk/release/app-release.apk
