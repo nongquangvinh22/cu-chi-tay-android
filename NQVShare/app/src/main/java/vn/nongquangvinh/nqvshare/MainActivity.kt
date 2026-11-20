@@ -55,6 +55,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -99,7 +100,7 @@ private data class SharedFile(
     val fileName: String,
     val fileSize: Long,
     val url: String,
-    val expiresInDays: Int
+    val expiresInHours: Int
 )
 
 private enum class ShareMode(val title: String) {
@@ -119,15 +120,17 @@ private fun NQVShareApp() {
     var serverUrl by remember {
         mutableStateOf(preferences.getString("server_url", "") ?: "")
     }
+    var uploadKey by remember {
+        mutableStateOf(preferences.getString("upload_key", "") ?: "")
+    }
     var selectedFiles by remember { mutableStateOf(emptyList<LocalFile>()) }
     var sharedFiles by remember { mutableStateOf(emptyList<SharedFile>()) }
     var shareMode by remember { mutableStateOf(ShareMode.LINK) }
-    var expiresInDays by remember { mutableStateOf(7) }
     var isUploading by remember { mutableStateOf(false) }
     var isCheckingServer by remember { mutableStateOf(false) }
     var progress by remember { mutableStateOf(0f) }
     var currentFileName by remember { mutableStateOf("") }
-    var status by remember { mutableStateOf("Nhập địa chỉ Worker để kết nối và bắt đầu chia sẻ.") }
+    var status by remember { mutableStateOf("Nhập địa chỉ máy chủ và mã kết nối riêng để bắt đầu chia sẻ.") }
     var statusIsError by remember { mutableStateOf(false) }
     var qrItem by remember { mutableStateOf<SharedFile?>(null) }
 
@@ -182,7 +185,7 @@ private fun NQVShareApp() {
 
                 SectionCard(
                     title = "1. Kết nối máy chủ",
-                    subtitle = "Dán địa chỉ Cloudflare Worker của bạn vào đây."
+                    subtitle = "Dán địa chỉ HTTPS của máy chủ NQV Share và nhập mã kết nối riêng."
                 ) {
                     OutlinedTextField(
                         value = serverUrl,
@@ -190,19 +193,30 @@ private fun NQVShareApp() {
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
                         label = { Text("Địa chỉ máy chủ Cloudflare Worker") },
-                        placeholder = { Text("https://nqv-share-api.ten-ban.workers.dev") }
+                        placeholder = { Text("https://ten-may-chu.ts.net") }
+                    )
+                    OutlinedTextField(
+                        value = uploadKey,
+                        onValueChange = { uploadKey = it.trim() },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        label = { Text("Mã kết nối riêng của máy chủ") },
+                        visualTransformation = PasswordVisualTransformation()
                     )
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         Button(
                             onClick = {
                                 val cleaned = normalizeServerUrl(serverUrl)
-                                if (cleaned == null) {
-                                    status = "Địa chỉ không hợp lệ. Hãy nhập URL HTTPS của Worker."
+                                if (cleaned == null || uploadKey.isBlank()) {
+                                    status = "Hãy nhập địa chỉ HTTPS hợp lệ và mã kết nối riêng."
                                     statusIsError = true
                                 } else {
                                     serverUrl = cleaned
-                                    preferences.edit().putString("server_url", cleaned).apply()
-                                    status = "Đã lưu địa chỉ máy chủ trên điện thoại."
+                                    preferences.edit()
+                                        .putString("server_url", cleaned)
+                                        .putString("upload_key", uploadKey)
+                                        .apply()
+                                    status = "Đã lưu địa chỉ và mã kết nối trên điện thoại."
                                     statusIsError = false
                                 }
                             },
@@ -214,12 +228,15 @@ private fun NQVShareApp() {
                         OutlinedButton(
                             onClick = {
                                 val cleaned = normalizeServerUrl(serverUrl)
-                                if (cleaned == null) {
-                                    status = "Hãy nhập URL HTTPS hợp lệ trước khi kiểm tra."
+                                if (cleaned == null || uploadKey.isBlank()) {
+                                    status = "Hãy nhập URL HTTPS hợp lệ và mã kết nối riêng."
                                     statusIsError = true
                                 } else {
                                     serverUrl = cleaned
-                                    preferences.edit().putString("server_url", cleaned).apply()
+                                    preferences.edit()
+                                        .putString("server_url", cleaned)
+                                        .putString("upload_key", uploadKey)
+                                        .apply()
                                     scope.launch {
                                         isCheckingServer = true
                                         try {
@@ -242,7 +259,7 @@ private fun NQVShareApp() {
                         }
                     }
                     Text(
-                        text = "Máy chủ cần được triển khai và cấu hình R2 trước. APK không chứa khóa bí mật Cloudflare.",
+                        text = "Mã kết nối được lưu riêng trong dữ liệu ứng dụng và chỉ dùng để cho phép tải lên.",
                         fontSize = 12.sp,
                         color = Muted
                     )
@@ -307,15 +324,11 @@ private fun NQVShareApp() {
                     title = "3. Thời hạn liên kết",
                     subtitle = "Liên kết sẽ tự hết hạn và tệp được dọn khỏi kho lưu trữ."
                 ) {
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        listOf(1, 7, 30).forEach { days ->
-                            FilterChip(
-                                selected = expiresInDays == days,
-                                onClick = { expiresInDays = days },
-                                label = { Text(days.toString() + " ngày") }
-                            )
-                        }
-                    }
+                    Text(
+                        "Thời hạn được cố định ở 24 giờ kể từ khi tải lên thành công.",
+                        color = Muted,
+                        fontSize = 13.sp
+                    )
                 }
 
                 SectionCard(
@@ -330,13 +343,20 @@ private fun NQVShareApp() {
                                     status = "Hãy nhập và lưu địa chỉ HTTPS của Worker trước."
                                     statusIsError = true
                                 }
+                                uploadKey.isBlank() -> {
+                                    status = "Hãy nhập mã kết nối riêng của máy chủ trước."
+                                    statusIsError = true
+                                }
                                 selectedFiles.isEmpty() -> {
                                     status = "Bạn chưa chọn tệp để tải lên."
                                     statusIsError = true
                                 }
                                 else -> {
                                     serverUrl = base
-                                    preferences.edit().putString("server_url", base).apply()
+                                    preferences.edit()
+                                        .putString("server_url", base)
+                                        .putString("upload_key", uploadKey)
+                                        .apply()
                                     scope.launch {
                                         isUploading = true
                                         sharedFiles = emptyList()
@@ -351,7 +371,7 @@ private fun NQVShareApp() {
                                                         context = context,
                                                         file = file,
                                                         baseUrl = base,
-                                                        expiryDays = expiresInDays,
+                                                        uploadKey = uploadKey,
                                                         onProgress = { value -> progress = value / 100f }
                                                     )
                                                     sharedFiles = sharedFiles + shared
@@ -505,7 +525,7 @@ private fun NQVShareApp() {
                         overflow = TextOverflow.Ellipsis
                     )
                     Text(
-                        "Liên kết có hiệu lực " + item.expiresInDays + " ngày",
+                        "Liên kết có hiệu lực " + item.expiresInHours + " giờ",
                         color = Muted,
                         fontSize = 12.sp
                     )
@@ -625,7 +645,7 @@ private fun SharedFileCard(
                 overflow = TextOverflow.Ellipsis
             )
             Text(
-                formatBytes(item.fileSize) + "  •  Hết hạn sau " + item.expiresInDays + " ngày",
+                formatBytes(item.fileSize) + "  •  Hết hạn sau " + item.expiresInHours + " giờ",
                 fontSize = 11.sp,
                 color = Muted
             )
@@ -729,7 +749,7 @@ private suspend fun uploadFile(
     context: Context,
     file: LocalFile,
     baseUrl: String,
-    expiryDays: Int,
+    uploadKey: String,
     onProgress: (Int) -> Unit
 ): SharedFile = withContext(Dispatchers.IO) {
     var cachedFile: File? = null
@@ -749,12 +769,12 @@ private suspend fun uploadFile(
         createConnection.readTimeout = 30000
         createConnection.doOutput = true
         createConnection.setRequestProperty("Content-Type", "application/json; charset=utf-8")
+        createConnection.setRequestProperty("X-NQV-Key", uploadKey)
 
         val payload = JSONObject()
             .put("filename", file.name)
             .put("contentType", file.mimeType)
             .put("size", uploadSize)
-            .put("expiresInDays", expiryDays)
 
         val createResponse: JSONObject
         try {
@@ -840,7 +860,7 @@ private suspend fun uploadFile(
             fileName = file.name,
             fileSize = uploadSize,
             url = createResponse.getString("shareUrl"),
-            expiresInDays = expiryDays
+            expiresInHours = 24
         )
     } finally {
         cachedFile?.delete()
