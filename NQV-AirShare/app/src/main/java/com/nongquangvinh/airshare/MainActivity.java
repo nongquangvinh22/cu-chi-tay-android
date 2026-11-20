@@ -1,6 +1,17 @@
 package com.nongquangvinh.airshare;
 
 import android.app.Activity;
+import android.animation.ValueAnimator;
+import android.content.res.ColorStateList;
+import android.graphics.Canvas;
+import android.graphics.LinearGradient;
+import android.graphics.Paint;
+import android.graphics.RadialGradient;
+import android.graphics.Shader;
+import android.graphics.drawable.RippleDrawable;
+import android.widget.FrameLayout;
+import android.view.animation.DecelerateInterpolator;
+import android.view.animation.LinearInterpolator;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
