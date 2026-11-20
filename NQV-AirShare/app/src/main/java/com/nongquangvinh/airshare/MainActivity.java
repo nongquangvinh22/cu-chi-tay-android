@@ -667,12 +667,15 @@ public class MainActivity extends Activity {
             return;
         }
 
-        String base = workerInput.getText().toString().trim();
-        while (base.endsWith("/")) base = base.substring(0, base.length() - 1);
-        if (!base.startsWith("https://")) {
+        String configuredBase = workerInput.getText().toString().trim();
+        while (configuredBase.endsWith("/")) {
+            configuredBase = configuredBase.substring(0, configuredBase.length() - 1);
+        }
+        if (!configuredBase.startsWith("https://")) {
             updateStatus("Nhập địa chỉ HTTPS của Cloudflare Worker rồi nhấn Lưu địa chỉ máy chủ.");
             return;
         }
+        final String base = configuredBase;
         getPreferences(MODE_PRIVATE).edit().putString(PREF_WORKER_URL, base).apply();
 
         final long total = totalSelectedBytes();
