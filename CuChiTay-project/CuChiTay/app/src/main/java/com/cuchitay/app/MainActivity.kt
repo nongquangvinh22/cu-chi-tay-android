@@ -223,7 +223,7 @@ class MainActivity : Activity() {
             if (GestureAccessibilityService.instance == null) {
                 Toast.makeText(
                     this,
-                    "Hãy bật \\"Cử Chỉ Tay\\" trong cài đặt Trợ năng trước",
+                    "Hãy bật \"Cử Chỉ Tay\" trong cài đặt Trợ năng trước",
                     Toast.LENGTH_LONG
                 ).show()
                 startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
