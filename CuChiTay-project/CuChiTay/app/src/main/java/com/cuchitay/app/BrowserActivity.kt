@@ -260,7 +260,7 @@ class BrowserActivity : Activity() {
                         tabs[index].url = url.orEmpty()
                         if (index == activeIndex) {
                             address.setText(url.orEmpty())
-                            progress.visibility = View.GONE
+                            browserProgress.visibility = View.GONE
                             updateNavigationButtons()
                         }
                         renderTabs()
@@ -279,8 +279,8 @@ class BrowserActivity : Activity() {
 
                 override fun onProgressChanged(view: WebView?, newProgress: Int) {
                     if (view === currentWeb()) {
-                        progress.progress = newProgress
-                        progress.visibility = if (newProgress >= 100) View.GONE else View.VISIBLE
+                        browserProgress.progress = newProgress
+                        browserProgress.visibility = if (newProgress >= 100) View.GONE else View.VISIBLE
                     }
                 }
             }
@@ -379,7 +379,7 @@ class BrowserActivity : Activity() {
         }
         val candidate = if (hasScheme) raw else "https://$raw"
         val uri = runCatching { Uri.parse(candidate) }.getOrNull()
-        if (uri?.scheme !in listOf("http", "https") || uri.host.isNullOrBlank()) {
+        if (uri.scheme !in listOf("http", "https") || uri.host.isNullOrBlank()) {
             val query = URLEncoder.encode(raw, "UTF-8")
             return "https://www.google.com/search?q=$query&safe=active"
         }
