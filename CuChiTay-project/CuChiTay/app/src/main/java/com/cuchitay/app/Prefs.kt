@@ -17,5 +17,9 @@ object Prefs {
 
     const val SENS = "sens"
     const val SCROLL_SPEED = "scroll_speed"
-    const val DEFAULT_SCROLL_SPEED = 67
+    const val DEFAULT_SCROLL_SPEED = 74
+    const val SMOOTHNESS = "smoothness"
+    const val COOLDOWN = "cooldown"
+    const val DEFAULT_SMOOTHNESS = 65
+    const val DEFAULT_COOLDOWN_MS = 700
 }
