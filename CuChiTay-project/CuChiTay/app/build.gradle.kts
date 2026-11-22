@@ -17,8 +17,8 @@ android {
         applicationId = "com.cuchitay.app.v32"
         minSdk = 28
         targetSdk = 34
-        versionCode = 32
-        versionName = "3.2"
+        versionCode = 33
+        versionName = "3.3"
         ndk { abiFilters.add("arm64-v8a") }
     }
 
