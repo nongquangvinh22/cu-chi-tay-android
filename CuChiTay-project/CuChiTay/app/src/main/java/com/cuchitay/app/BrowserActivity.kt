@@ -379,7 +379,7 @@ class BrowserActivity : Activity() {
         }
         val candidate = if (hasScheme) raw else "https://$raw"
         val uri = runCatching { Uri.parse(candidate) }.getOrNull()
-        if (uri.scheme !in listOf("http", "https") || uri.host.isNullOrBlank()) {
+        if (uri == null || uri.scheme !in listOf("http", "https") || uri.host.isNullOrBlank()) {
             val query = URLEncoder.encode(raw, "UTF-8")
             return "https://www.google.com/search?q=$query&safe=active"
         }
