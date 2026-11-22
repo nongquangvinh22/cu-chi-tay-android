@@ -195,7 +195,9 @@ class MainActivity : Activity() {
             j.put("clench", prefs.getBoolean(Prefs.GRAB, true))
             j.put("reverse", prefs.getBoolean(Prefs.INVERT, false))
             j.put("sensitivity", prefs.getInt(Prefs.SENS, 58))
-            j.put("scrollSpeed", prefs.getInt(Prefs.SCROLL_SPEED, 74))
+            j.put("scrollSpeed", prefs.getInt(Prefs.SCROLL_SPEED, Prefs.DEFAULT_SCROLL_SPEED))
+            j.put("smoothness", prefs.getInt(Prefs.SMOOTHNESS, Prefs.DEFAULT_SMOOTHNESS))
+            j.put("cooldown", prefs.getInt(Prefs.COOLDOWN, Prefs.DEFAULT_COOLDOWN_MS))
             return j.toString()
         }
 
@@ -213,6 +215,8 @@ class MainActivity : Activity() {
         }
         @JavascriptInterface fun setSensitivity(value: Int) = prefs.edit().putInt(Prefs.SENS, value.coerceIn(0, 100)).apply()
         @JavascriptInterface fun setScrollSpeed(value: Int) = prefs.edit().putInt(Prefs.SCROLL_SPEED, value.coerceIn(0, 100)).apply()
+        @JavascriptInterface fun setSmoothness(value: Int) = prefs.edit().putInt(Prefs.SMOOTHNESS, value.coerceIn(20, 90)).apply()
+        @JavascriptInterface fun setCooldown(value: Int) = prefs.edit().putInt(Prefs.COOLDOWN, value.coerceIn(350, 1400)).apply()
         @JavascriptInterface fun isSystemControlRunning(): Boolean = GestureService.running
         @JavascriptInterface fun startSystemControl() { runOnUiThread { startSystemControlNative() } }
         @JavascriptInterface fun stopSystemControl() { runOnUiThread { stopSystemControlNative() } }
