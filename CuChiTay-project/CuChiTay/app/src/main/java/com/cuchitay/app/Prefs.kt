@@ -21,5 +21,5 @@ object Prefs {
     const val SMOOTHNESS = "smoothness"
     const val COOLDOWN = "cooldown"
     const val DEFAULT_SMOOTHNESS = 65
-    const val DEFAULT_COOLDOWN_MS = 700
+    const val DEFAULT_COOLDOWN_MS = 220
 }
