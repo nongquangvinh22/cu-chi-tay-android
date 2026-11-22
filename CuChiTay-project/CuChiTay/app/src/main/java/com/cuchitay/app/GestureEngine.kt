@@ -26,7 +26,7 @@ class GestureEngine(
     @Volatile var sensitivity = 1.0f
     /** Low alpha means more smoothing. */
     @Volatile var smoothing = 0.40f
-    @Volatile var cooldownMs = 700L
+    @Volatile var cooldownMs = 220L
 
     private data class Sample(val t: Long, val x: Float, val y: Float, val palmScale: Float)
     private data class Point(val x: Float, val y: Float)
@@ -43,14 +43,14 @@ class GestureEngine(
     private var stableSince = 0L
 
     companion object {
-        private const val MOTION_WINDOW_MS = 280L
-        private const val MIN_SAMPLE_SPAN_MS = 75L
-        private const val REARM_WINDOW_MS = 320L
-        private const val REARM_MIN_SPAN_MS = 150L
-        private const val REARM_STABLE_MS = 145L
-        private const val MIN_FLICK_SPEED = 0.34f
-        private const val MIN_DIRECTNESS = 0.42f
-        private const val AXIS_DOMINANCE = 1.16f
+        private const val MOTION_WINDOW_MS = 230L
+        private const val MIN_SAMPLE_SPAN_MS = 55L
+        private const val REARM_WINDOW_MS = 180L
+        private const val REARM_MIN_SPAN_MS = 70L
+        private const val REARM_STABLE_MS = 65L
+        private const val MIN_FLICK_SPEED = 0.26f
+        private const val MIN_DIRECTNESS = 0.35f
+        private const val AXIS_DOMINANCE = 1.10f
         private const val GROUP_SIZE = 2
         private const val GRAB_WINDOW_MS = 1300L
         private const val GRAB_COOLDOWN_MS = 2200L
@@ -185,7 +185,7 @@ class GestureEngine(
             val pipRadius = distance(lm[0], lm[pip], aspect).coerceAtLeast(1e-4f)
             val tipRadius = distance(lm[0], lm[tip], aspect)
             val alignment = segmentAlignment(lm[mcp], lm[pip], lm[dip], lm[tip], aspect)
-            if (tipRadius > pipRadius * 1.07f && alignment > 0.02f) extended++
+            if (tipRadius > pipRadius * 1.02f && alignment > -0.08f) extended++
         }
         return extended
     }
@@ -203,7 +203,7 @@ class GestureEngine(
     }
 
     private fun updateRearm(now: Long, aspect: Float) {
-        if (history.size < 5 || now - history.first().t < REARM_MIN_SPAN_MS) {
+        if (history.size < 4 || now - history.first().t < REARM_MIN_SPAN_MS) {
             stableSince = 0L
             return
         }
@@ -220,7 +220,7 @@ class GestureEngine(
             maxY = max(maxY, sample.y)
         }
         val stableLimit = (travelThreshold(history.last().palmScale, sensitivity) * 0.28f)
-            .coerceIn(0.018f, 0.042f)
+            .coerceIn(0.022f, 0.052f)
         val stable = (maxX - minX) < stableLimit && (maxY - minY) < stableLimit
         if (!stable) {
             stableSince = 0L
@@ -249,7 +249,7 @@ class GestureEngine(
     }
 
     private fun travelThreshold(palmScale: Float, sensitivityValue: Float): Float =
-        (palmScale * 0.58f / sensitivityValue.coerceIn(0.6f, 1.6f)).coerceIn(0.075f, 0.155f)
+        (palmScale * 0.48f / sensitivityValue.coerceIn(0.6f, 1.6f)).coerceIn(0.065f, 0.135f)
 
     private fun isDirectionEnabled(dir: SwipeDir): Boolean = when (dir) {
         SwipeDir.UP -> swipeUpEnabled
