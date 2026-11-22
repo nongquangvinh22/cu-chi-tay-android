@@ -30,6 +30,7 @@ class GestureEngine(
 
     private data class Sample(val t: Long, val x: Float, val y: Float, val palmScale: Float)
     private data class Point(val x: Float, val y: Float)
+    private data class MotionAverage(val x: Float, val y: Float, val t: Long, val palmScale: Float)
 
     private val history = ArrayDeque<Sample>()
     private var smoothX: Float? = null
@@ -237,9 +238,9 @@ class GestureEngine(
         while (history.isNotEmpty() && now - history.first().t > windowMs) history.removeFirst()
     }
 
-    private fun average(samples: List<Sample>): Sample {
+    private fun average(samples: List<Sample>): MotionAverage {
         val count = samples.size.coerceAtLeast(1).toFloat()
-        return Sample(
+        return MotionAverage(
             samples.sumOf { it.x.toDouble() }.toFloat() / count,
             samples.sumOf { it.y.toDouble() }.toFloat() / count,
             samples.sumOf { it.t } / samples.size.coerceAtLeast(1),
