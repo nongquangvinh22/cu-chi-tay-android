@@ -219,6 +219,22 @@ class MainActivity : Activity() {
         sendStatus()
     }
 
+    private fun normalizedCooldown(): Int {
+        val current = prefs.getInt(Prefs.COOLDOWN, Prefs.DEFAULT_COOLDOWN_MS)
+        val migrated = prefs.getBoolean("cooldown_fast_v34_migrated", false)
+        if (!migrated) {
+            // The previous release stored its old 700 ms default in SharedPreferences.
+            // Migrate that legacy default once, while retaining deliberate shorter custom values.
+            val value = if (current >= 650) 220 else current.coerceIn(120, 800)
+            prefs.edit()
+                .putInt(Prefs.COOLDOWN, value)
+                .putBoolean("cooldown_fast_v34_migrated", true)
+                .apply()
+            return value
+        }
+        return current.coerceIn(120, 800)
+    }
+
     private fun sendStatus() {
         if (!::web.isInitialized) return
         val running = GestureService.running
@@ -239,7 +255,7 @@ class MainActivity : Activity() {
             j.put("sensitivity", prefs.getInt(Prefs.SENS, 58))
             j.put("scrollSpeed", prefs.getInt(Prefs.SCROLL_SPEED, Prefs.DEFAULT_SCROLL_SPEED))
             j.put("smoothness", prefs.getInt(Prefs.SMOOTHNESS, Prefs.DEFAULT_SMOOTHNESS))
-            j.put("cooldown", prefs.getInt(Prefs.COOLDOWN, Prefs.DEFAULT_COOLDOWN_MS))
+            j.put("cooldown", normalizedCooldown())
             return j.toString()
         }
 
@@ -258,7 +274,17 @@ class MainActivity : Activity() {
         @JavascriptInterface fun setSensitivity(value: Int) = prefs.edit().putInt(Prefs.SENS, value.coerceIn(0, 100)).apply()
         @JavascriptInterface fun setScrollSpeed(value: Int) = prefs.edit().putInt(Prefs.SCROLL_SPEED, value.coerceIn(0, 100)).apply()
         @JavascriptInterface fun setSmoothness(value: Int) = prefs.edit().putInt(Prefs.SMOOTHNESS, value.coerceIn(20, 90)).apply()
-        @JavascriptInterface fun setCooldown(value: Int) = prefs.edit().putInt(Prefs.COOLDOWN, value.coerceIn(350, 1400)).apply()
+        @JavascriptInterface fun setCooldown(value: Int) = prefs.edit()
+            .putInt(Prefs.COOLDOWN, value.coerceIn(120, 800))
+            .putBoolean("cooldown_fast_v34_migrated", true)
+            .apply()
+        @JavascriptInterface fun openBrowser(url: String) {
+            val initialUrl = url.take(2048)
+            runOnUiThread {
+                startActivity(Intent(this@MainActivity, BrowserActivity::class.java)
+                    .putExtra(BrowserActivity.EXTRA_URL, initialUrl))
+            }
+        }
         @JavascriptInterface fun isSystemControlRunning(): Boolean = GestureService.running
         @JavascriptInterface fun startSystemControl() { runOnUiThread { startSystemControlNative() } }
         @JavascriptInterface fun stopSystemControl() { runOnUiThread { stopSystemControlNative() } }
