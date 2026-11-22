@@ -1,5 +1,7 @@
 import java.util.Base64
-import java.util.zip.GZIPInputStream
+import java.io.ByteArrayInputStream
+import java.io.File
+import java.util.zip.ZipInputStream
 
 plugins {
     id("com.android.application")
@@ -42,16 +44,35 @@ dependencies {
 
 // Keep the UI compact in Git while automatically expanding it before Android asset packaging.
 val inflateWebUi by tasks.registering {
-    val compressedUi = layout.projectDirectory.file("src/main/assets/www/index.html.gz.b64")
-    val expandedUi = layout.projectDirectory.file("src/main/assets/www/index.html")
-    inputs.file(compressedUi)
-    outputs.file(expandedUi)
+    val bundleFile = layout.projectDirectory.file("webui-source/www.bundle.zip.b64")
+    val webRoot = layout.projectDirectory.dir("src/main/assets/www")
+    inputs.file(bundleFile)
+    outputs.dir(webRoot)
     doLast {
-        val payload = Base64.getDecoder().decode(compressedUi.asFile.readText().trim())
-        GZIPInputStream(payload.inputStream()).use { input ->
-            expandedUi.asFile.apply { parentFile.mkdirs() }.outputStream().use { output ->
-                input.copyTo(output)
+        val zipBytes = Base64.getDecoder().decode(bundleFile.asFile.readText().trim())
+        val root = webRoot.asFile.canonicalFile
+        root.mkdirs()
+        ZipInputStream(ByteArrayInputStream(zipBytes)).use { zip ->
+            var entry = zip.nextEntry
+            while (entry != null) {
+                val target = File(root, entry.name).canonicalFile
+                require(target.toPath().startsWith(root.toPath())) {
+                    "Unsafe Web UI archive entry: ${entry.name}"
+                }
+                if (entry.isDirectory) {
+                    target.mkdirs()
+                } else {
+                    target.parentFile.mkdirs()
+                    target.outputStream().use { output -> zip.copyTo(output) }
+                }
+                zip.closeEntry()
+                entry = zip.nextEntry
             }
+        }
+        check(File(root, "index.html").isFile &&
+            File(root, "app.js").isFile &&
+            File(root, "styles.css").isFile) {
+            "Web UI bundle is incomplete"
         }
     }
 }
