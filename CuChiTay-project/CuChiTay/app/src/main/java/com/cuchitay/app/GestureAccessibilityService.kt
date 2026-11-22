@@ -67,7 +67,7 @@ class GestureAccessibilityService : AccessibilityService() {
         val speed = getSharedPreferences(Prefs.NAME, MODE_PRIVATE)
             .getInt(Prefs.SCROLL_SPEED, Prefs.DEFAULT_SCROLL_SPEED)
             .coerceIn(0, 100)
-        val durationMs = (320f - speed * 2.4f).toLong().coerceIn(80L, 320L)
+        val durationMs = (190f - speed * 1.1f).toLong().coerceIn(80L, 190L)
 
         val stroke = GestureDescription.StrokeDescription(path, 0L, durationMs)
         val gesture = GestureDescription.Builder().addStroke(stroke).build()
