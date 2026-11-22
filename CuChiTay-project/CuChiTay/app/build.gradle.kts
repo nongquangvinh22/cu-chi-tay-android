@@ -1,3 +1,6 @@
+import java.util.Base64
+import java.util.zip.GZIPInputStream
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -44,8 +47,8 @@ val inflateWebUi by tasks.registering {
     inputs.file(compressedUi)
     outputs.file(expandedUi)
     doLast {
-        val payload = java.util.Base64.getDecoder().decode(compressedUi.asFile.readText().trim())
-        java.util.zip.GZIPInputStream(payload.inputStream()).use { input ->
+        val payload = Base64.getDecoder().decode(compressedUi.asFile.readText().trim())
+        GZIPInputStream(payload.inputStream()).use { input ->
             expandedUi.asFile.apply { parentFile.mkdirs() }.outputStream().use { output ->
                 input.copyTo(output)
             }
