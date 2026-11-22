@@ -205,7 +205,10 @@ class GestureService : LifecycleService() {
         engine.swipeRightEnabled = prefs.getBoolean(Prefs.SWIPE_RIGHT, false)
         engine.grabEnabled = prefs.getBoolean(Prefs.GRAB, true)
         engine.invertVertical = prefs.getBoolean(Prefs.INVERT, false)
-        engine.sensitivity = 0.6f + prefs.getInt(Prefs.SENS, 50) / 100f * 0.9f
+        engine.sensitivity = 0.6f + prefs.getInt(Prefs.SENS, 58).coerceIn(0, 100) / 100f * 0.9f
+        val smoothness = prefs.getInt(Prefs.SMOOTHNESS, Prefs.DEFAULT_SMOOTHNESS).coerceIn(20, 90)
+        engine.smoothing = 0.18f + (100 - smoothness) / 100f * 0.54f
+        engine.cooldownMs = prefs.getInt(Prefs.COOLDOWN, Prefs.DEFAULT_COOLDOWN_MS).coerceIn(350, 1400).toLong()
     }
 
     private fun buildNotification(): Notification {
