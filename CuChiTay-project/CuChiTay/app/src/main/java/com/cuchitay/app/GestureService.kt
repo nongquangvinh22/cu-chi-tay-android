@@ -110,9 +110,9 @@ class GestureService : LifecycleService() {
                 .setBaseOptions(base)
                 .setRunningMode(RunningMode.LIVE_STREAM)
                 .setNumHands(1)
-                .setMinHandDetectionConfidence(0.5f)
-                .setMinHandPresenceConfidence(0.5f)
-                .setMinTrackingConfidence(0.5f)
+                .setMinHandDetectionConfidence(0.42f)
+                .setMinHandPresenceConfidence(0.40f)
+                .setMinTrackingConfidence(0.40f)
                 .setResultListener { result, _ -> handleResult(result) }
                 .setErrorListener { e -> Log.e(TAG, "MediaPipe lỗi", e) }
                 .build()
@@ -208,7 +208,7 @@ class GestureService : LifecycleService() {
         engine.sensitivity = 0.6f + prefs.getInt(Prefs.SENS, 58).coerceIn(0, 100) / 100f * 0.9f
         val smoothness = prefs.getInt(Prefs.SMOOTHNESS, Prefs.DEFAULT_SMOOTHNESS).coerceIn(20, 90)
         engine.smoothing = 0.18f + (100 - smoothness) / 100f * 0.54f
-        engine.cooldownMs = prefs.getInt(Prefs.COOLDOWN, Prefs.DEFAULT_COOLDOWN_MS).coerceIn(350, 1400).toLong()
+        engine.cooldownMs = prefs.getInt(Prefs.COOLDOWN, Prefs.DEFAULT_COOLDOWN_MS).coerceIn(120, 800).toLong()
     }
 
     private fun buildNotification(): Notification {
