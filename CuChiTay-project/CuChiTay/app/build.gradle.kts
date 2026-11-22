@@ -50,7 +50,7 @@ val inflateWebUi by tasks.registering {
     outputs.dir(webRoot)
     doLast {
         val orderedParts = bundleParts.files.sortedBy { it.name }
-        check(orderedParts.size == 4) { "Expected four parts for the Web UI bundle" }
+        check(orderedParts.size == 6) { "Expected six parts for the Web UI bundle" }
         val bundleText = orderedParts.joinToString("") { it.readText().trim() }
         val zipBytes = Base64.getDecoder().decode(bundleText)
         val root = webRoot.asFile.canonicalFile
