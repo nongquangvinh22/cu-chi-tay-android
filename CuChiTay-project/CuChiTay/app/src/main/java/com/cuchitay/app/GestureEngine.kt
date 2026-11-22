@@ -47,16 +47,16 @@ class GestureEngine(
     private var stableSince = 0L
 
     companion object {
-        private const val WINDOW_MS = 300L
-        private const val MIN_SAMPLE_SPAN_MS = 85L
+        private const val WINDOW_MS = 360L
+        private const val MIN_SAMPLE_SPAN_MS = 90L
 
-        private const val REARM_WINDOW_MS = 180L
-        private const val REARM_MIN_SPAN_MS = 105L
+        private const val REARM_WINDOW_MS = 230L
+        private const val REARM_MIN_SPAN_MS = 115L
         private const val REARM_STABLE_MS = 115L
 
-        private const val MIN_FLICK_SPEED = 0.38f
-        private const val MIN_DIRECTNESS = 0.56f
-        private const val AXIS_DOMINANCE = 1.22f
+        private const val MIN_FLICK_SPEED = 0.34f
+        private const val MIN_DIRECTNESS = 0.50f
+        private const val AXIS_DOMINANCE = 1.18f
         private const val FIRST_LAST_AVERAGE = 3
 
         private const val GRAB_WINDOW_MS = 1100L
@@ -74,7 +74,9 @@ class GestureEngine(
     fun onHand(lm: List<NormalizedLandmark>?, now: Long, aspect: Float) {
         if (lm == null || lm.size < 21) {
             resetMotion()
+            awaitingRearm = false
             fistFrames = 0
+            lastOpenAt = 0L
             return
         }
 
@@ -90,9 +92,9 @@ class GestureEngine(
             val tipRadius = dist(lm[0], lm[tip], aspect)
             val alignment = segmentAlignment(lm[mcp], lm[pip], lm[dip], lm[tip], aspect)
 
-            if (tipRadius > pipRadius * 1.10f && alignment > 0.18f) {
+            if (tipRadius > pipRadius * 1.08f && alignment > 0.08f) {
                 extended++
-            } else if (tipRadius < pipRadius * 1.05f) {
+            } else if (tipRadius < pipRadius * 1.09f) {
                 folded++
             }
         }
@@ -123,6 +125,7 @@ class GestureEngine(
 
         if (!isOpen) {
             resetMotion()
+            awaitingRearm = false
             return
         }
 
@@ -266,8 +269,8 @@ class GestureEngine(
     }
 
     private fun travelThreshold(palmScale: Float, sensitivityValue: Float): Float {
-        return (palmScale * 0.72f / sensitivityValue.coerceIn(0.6f, 1.6f))
-            .coerceIn(0.105f, 0.215f)
+        return (palmScale * 0.66f / sensitivityValue.coerceIn(0.6f, 1.6f))
+            .coerceIn(0.09f, 0.20f)
     }
 
     private fun average(samples: List<Sample>, from: Int, until: Int): Average {
