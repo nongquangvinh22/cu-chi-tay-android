@@ -60,7 +60,7 @@ class MainActivity : Activity() {
                     return request?.url?.let { assetLoader.shouldInterceptRequest(it) }
                 }
                 override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
-                    return request.url.host != ASSET_HOST
+                    return request?.url?.host != ASSET_HOST
                 }
                 override fun onPageFinished(view: WebView?, url: String?) {
                     super.onPageFinished(view, url)
