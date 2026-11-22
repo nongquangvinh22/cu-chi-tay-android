@@ -44,12 +44,15 @@ dependencies {
 
 // Keep the UI compact in Git while automatically expanding it before Android asset packaging.
 val inflateWebUi by tasks.registering {
-    val bundleFile = layout.projectDirectory.file("webui-source/www.bundle.zip.b64")
+    val bundleParts = fileTree("webui-source") { include("part-*.b64") }
     val webRoot = layout.projectDirectory.dir("src/main/assets/www")
-    inputs.file(bundleFile)
+    inputs.files(bundleParts)
     outputs.dir(webRoot)
     doLast {
-        val zipBytes = Base64.getDecoder().decode(bundleFile.asFile.readText().trim())
+        val orderedParts = bundleParts.files.sortedBy { it.name }
+        check(orderedParts.size == 4) { "Expected four parts for the Web UI bundle" }
+        val bundleText = orderedParts.joinToString("") { it.readText().trim() }
+        val zipBytes = Base64.getDecoder().decode(bundleText)
         val root = webRoot.asFile.canonicalFile
         root.mkdirs()
         ZipInputStream(ByteArrayInputStream(zipBytes)).use { zip ->
