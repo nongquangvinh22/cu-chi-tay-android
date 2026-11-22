@@ -76,8 +76,8 @@ class GestureEngine(
         val extended = countExtendedFingers(lm, aspect)
         val folded = 4 - extended
         val isOpen = extended >= 3
-        val isFist = extended <= 1 && folded >= 3
-        val isSwipePose = extended >= 2 && !isFist
+        val isFist = extended == 0 && folded == 4
+        val isSwipePose = extended >= 1 && !isFist
 
         if (isOpen) lastOpenAt = now
         if (grabEnabled) {
