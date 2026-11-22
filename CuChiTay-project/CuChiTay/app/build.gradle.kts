@@ -14,11 +14,11 @@ android {
 
     defaultConfig {
         // Separate package so 3.0 can be installed alongside the current 2.1 app.
-        applicationId = "com.cuchitay.app.v3"
+        applicationId = "com.cuchitay.app.v32"
         minSdk = 28
         targetSdk = 34
-        versionCode = 30
-        versionName = "3.0"
+        versionCode = 32
+        versionName = "3.2"
         ndk { abiFilters.add("arm64-v8a") }
     }
 
