@@ -24,6 +24,8 @@ class GestureEngine(
     @Volatile var grabEnabled = true
     @Volatile var invertVertical = false
     @Volatile var sensitivity = 1.0f
+    @Volatile var smoothing = 0.48f
+    @Volatile var cooldownMs = 700L
 
     private class Sample(val t: Long, val x: Float, val y: Float, val palmScale: Float)
 
@@ -47,7 +49,6 @@ class GestureEngine(
     companion object {
         private const val WINDOW_MS = 300L
         private const val MIN_SAMPLE_SPAN_MS = 85L
-        private const val SWIPE_COOLDOWN_MS = 420L
 
         private const val REARM_WINDOW_MS = 180L
         private const val REARM_MIN_SPAN_MS = 105L
@@ -56,7 +57,6 @@ class GestureEngine(
         private const val MIN_FLICK_SPEED = 0.38f
         private const val MIN_DIRECTNESS = 0.56f
         private const val AXIS_DOMINANCE = 1.22f
-        private const val SMOOTH_ALPHA = 0.48f
         private const val FIRST_LAST_AVERAGE = 3
 
         private const val GRAB_WINDOW_MS = 1100L
@@ -137,8 +137,9 @@ class GestureEngine(
         cx = 1f - cx // Giữ quy ước lật gương camera trước.
 
         val palmScale = dist(lm[0], lm[9], aspect).coerceIn(0.07f, 0.42f)
-        val filteredX = smoothX?.let { it + SMOOTH_ALPHA * (cx - it) } ?: cx
-        val filteredY = smoothY?.let { it + SMOOTH_ALPHA * (cy - it) } ?: cy
+        val alpha = smoothing.coerceIn(0.18f, 0.72f)
+        val filteredX = smoothX?.let { it + alpha * (cx - it) } ?: cx
+        val filteredY = smoothY?.let { it + alpha * (cy - it) } ?: cy
         smoothX = filteredX
         smoothY = filteredY
 
@@ -158,7 +159,7 @@ class GestureEngine(
 
         if (history.size < FIRST_LAST_AVERAGE * 2) return
         if (now - history.first().t < MIN_SAMPLE_SPAN_MS) return
-        if (now - lastSwipeAt < SWIPE_COOLDOWN_MS) return
+        if (now - lastSwipeAt < cooldownMs) return
 
         val samples = history.toList()
         val start = average(samples, 0, FIRST_LAST_AVERAGE)
@@ -257,7 +258,7 @@ class GestureEngine(
 
         if (stableSince == 0L) stableSince = now
         if (now - stableSince >= REARM_STABLE_MS &&
-            now - lastSwipeAt >= SWIPE_COOLDOWN_MS
+            now - lastSwipeAt >= cooldownMs
         ) {
             awaitingRearm = false
             resetMotion()
