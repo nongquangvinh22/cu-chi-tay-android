@@ -13,6 +13,7 @@ import android.webkit.JavascriptInterface
 import android.webkit.PermissionRequest
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
+import android.webkit.ValueCallback
 import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -32,6 +33,7 @@ class MainActivity : Activity() {
     }
 
     private var webCameraRequest: PermissionRequest? = null
+    private var fileChooserCallback: ValueCallback<Array<Uri>>? = null
     private var pendingWebResources = emptyArray<String>()
     private var pendingSystemStart = false
     private var pendingAccessibilityReturn = false
@@ -49,7 +51,8 @@ class MainActivity : Activity() {
                 domStorageEnabled = true
                 mediaPlaybackRequiresUserGesture = false
                 allowFileAccess = false
-                allowContentAccess = false
+                // Android's system picker grants access only to files the user selects.
+                allowContentAccess = true
                 javaScriptCanOpenWindowsAutomatically = false
                 setSupportMultipleWindows(false)
                 mixedContentMode = android.webkit.WebSettings.MIXED_CONTENT_NEVER_ALLOW
@@ -60,7 +63,10 @@ class MainActivity : Activity() {
                     return request?.url?.let { assetLoader.shouldInterceptRequest(it) }
                 }
                 override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
-                    return request?.url?.host != ASSET_HOST
+                    // Allow embedded YouTube frames and their media resources; keep external
+                    // top-level navigation out of this app shell.
+                    if (request == null || !request.isForMainFrame) return false
+                    return request.url.host != ASSET_HOST
                 }
                 override fun onPageFinished(view: WebView?, url: String?) {
                     super.onPageFinished(view, url)
@@ -68,6 +74,29 @@ class MainActivity : Activity() {
                 }
             }
             webChromeClient = object : WebChromeClient() {
+                override fun onShowFileChooser(
+                    webView: WebView?,
+                    callback: ValueCallback<Array<Uri>>?,
+                    params: FileChooserParams?
+                ): Boolean {
+                    fileChooserCallback?.onReceiveValue(null)
+                    fileChooserCallback = callback
+                    return try {
+                        val intent = params?.createIntent()
+                            ?: Intent(Intent.ACTION_GET_CONTENT).apply {
+                                addCategory(Intent.CATEGORY_OPENABLE)
+                                type = "*/*"
+                            }
+                        startActivityForResult(intent, REQ_MEDIA_PICKER)
+                        true
+                    } catch (e: Exception) {
+                        fileChooserCallback?.onReceiveValue(null)
+                        fileChooserCallback = null
+                        toast("Không thể mở trình chọn tệp trên điện thoại.")
+                        false
+                    }
+                }
+
                 override fun onPermissionRequest(request: PermissionRequest) {
                     val resources = request.resources.filter {
                         it == PermissionRequest.RESOURCE_VIDEO_CAPTURE
@@ -114,6 +143,19 @@ class MainActivity : Activity() {
     @Deprecated("Deprecated by Android; retained for older devices")
     override fun onBackPressed() {
         if (::web.isInitialized && web.canGoBack()) web.goBack() else super.onBackPressed()
+    }
+
+    @Deprecated("Deprecated by Android; retained for older devices")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQ_MEDIA_PICKER) {
+            val callback = fileChooserCallback
+            fileChooserCallback = null
+            callback?.onReceiveValue(
+                if (resultCode == RESULT_OK) WebChromeClient.FileChooserParams.parseResult(resultCode, data)
+                else null
+            )
+        }
     }
 
     override fun onRequestPermissionsResult(code: Int, permissions: Array<out String>, results: IntArray) {
@@ -227,6 +269,8 @@ class MainActivity : Activity() {
     }
 
     override fun onDestroy() {
+        fileChooserCallback?.onReceiveValue(null)
+        fileChooserCallback = null
         if (::web.isInitialized) web.destroy()
         super.onDestroy()
     }
@@ -236,5 +280,6 @@ class MainActivity : Activity() {
         private const val REQ_WEB_CAMERA = 601
         private const val REQ_SYSTEM_CAMERA = 602
         private const val REQ_NOTIFICATIONS = 603
+        private const val REQ_MEDIA_PICKER = 604
     }
 }
