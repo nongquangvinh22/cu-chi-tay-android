@@ -52,7 +52,7 @@ class BrowserActivity : Activity() {
     private lateinit var address: EditText
     private lateinit var tabRow: LinearLayout
     private lateinit var webHost: FrameLayout
-    private lateinit var progress: ProgressBar
+    private lateinit var browserProgress: ProgressBar
     private lateinit var backButton: Button
     private lateinit var forwardButton: Button
 
@@ -80,7 +80,7 @@ class BrowserActivity : Activity() {
         val reloadButton = toolButton("↻") { currentWeb()?.reload() }
 
         address = EditText(this).apply {
-            singleLine = true
+            setSingleLine(true)
             textSize = 13f
             setTextColor(Color.rgb(242, 249, 255))
             setHintTextColor(Color.rgb(158, 183, 211))
@@ -110,13 +110,13 @@ class BrowserActivity : Activity() {
             ViewGroup.LayoutParams.MATCH_PARENT, dp(50)
         ))
 
-        progress = ProgressBar(this, null, android.R.attr.progressBarStyleHorizontal).apply {
+        browserProgress = ProgressBar(this, null, android.R.attr.progressBarStyleHorizontal).apply {
             max = 100
             progress = 0
             progressTintList = android.content.res.ColorStateList.valueOf(Color.rgb(111, 225, 255))
             progressBackgroundTintList = android.content.res.ColorStateList.valueOf(Color.TRANSPARENT)
         }
-        root.addView(progress, LinearLayout.LayoutParams(
+        root.addView(browserProgress, LinearLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT, dp(3)
         ))
 
@@ -246,8 +246,8 @@ class BrowserActivity : Activity() {
                         tabs[index].url = url.orEmpty()
                         if (index == activeIndex) {
                             address.setText(url.orEmpty())
-                            progress.visibility = View.VISIBLE
-                            progress.progress = 5
+                            browserProgress.visibility = View.VISIBLE
+                            browserProgress.progress = 5
                         }
                         renderTabs()
                     }
