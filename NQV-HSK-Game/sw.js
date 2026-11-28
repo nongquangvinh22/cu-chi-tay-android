@@ -1,5 +1,5 @@
-const CACHE_NAME = "nqv-khoa-cu-v1";
-const APP_SHELL = ["./", "./index.html", "./styles.css", "./data.js", "./auth.js", "./app.js", "./manifest.webmanifest", "./assets/favicon.svg", "./assets/icon-192.svg", "./assets/icon-512.svg"];
+const CACHE_NAME = "nqv-khoa-cu-v2";
+const APP_SHELL = ["./", "./index.html", "./styles.css", "./data.js", "./auth.js", "./cloud-auth.js", "./supabase-config.js", "./app.js", "./manifest.webmanifest", "./assets/favicon.svg", "./assets/icon-192.svg", "./assets/icon-512.svg"];
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL)).then(() => self.skipWaiting()));
 });
