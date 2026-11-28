@@ -1,0 +1,43 @@
+name: Deploy NQV Khoa Cu Han Ngu
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'NQV-HSK-Game/**'
+      - '.github/workflows/deploy-hsk-game.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  validate-and-deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Validate JavaScript syntax
+        run: |
+          node --check NQV-HSK-Game/data.js
+          node --check NQV-HSK-Game/auth.js
+          node --check NQV-HSK-Game/app.js
+          node --check NQV-HSK-Game/sw.js
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+      - name: Upload game site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: NQV-HSK-Game
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#173d35">
+  <meta name="description" content="NQV Khoa Cử Hán Ngữ — học tiếng Trung từ HSK 1 đến HSK 6 qua hành trình khoa cử">
+  <title>NQV Khoa Cử Hán Ngữ</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="ambient ambient-one" aria-hidden="true"></div>
+  <div class="ambient ambient-two" aria-hidden="true"></div>
+
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Điều hướng chính">
+      <a class="brand" href="#home" aria-label="NQV Khoa Cử Hán Ngữ - Trang chủ">
+        <span class="brand-seal">NQV</span>
+        <span class="brand-copy"><strong>KHOA CỬ</strong><small>HÁN NGỮ · 漢語</small></span>
+      </a>
+      <div class="sidebar-rule"></div>
+      <div class="side-label">HÀNH TRÌNH</div>
+      <nav class="side-nav">
+        <button class="nav-item active" data-view="home"><span class="nav-icon">⌂</span><span>Điện học tập</span></button>
+        <button class="nav-item" data-view="map"><span class="nav-icon">♧</span><span>Con đường khoa cử</span></button>
+        <button class="nav-item" data-view="study"><span class="nav-icon">▤</span><span>Bài học Hán ngữ</span></button>
+        <button class="nav-item" data-view="exam"><span class="nav-icon">✧</span><span>Trường thi</span><span class="nav-dot"></span></button>
+        <button class="nav-item" data-view="records"><span class="nav-icon">▥</span><span>Bảng thành tích</span></button>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="mentor-mini">
+          <div class="mini-panda" aria-hidden="true"><svg viewBox="0 0 80 80"><circle cx="22" cy="23" r="13" fill="#202c2b"/><circle cx="58" cy="23" r="13" fill="#202c2b"/><ellipse cx="40" cy="43" rx="29" ry="27" fill="#fffaf0"/><ellipse cx="29" cy="40" rx="7" ry="10" transform="rotate(25 29 40)" fill="#263532"/><ellipse cx="51" cy="40" rx="7" ry="10" transform="rotate(-25 51 40)" fill="#263532"/><circle cx="30" cy="40" r="2.5" fill="white"/><circle cx="50" cy="40" r="2.5" fill="white"/><ellipse cx="40" cy="51" rx="5" ry="3.5" fill="#263532"/></svg></div>
+          <div><strong>Thầy Mặc Bảo</strong><small>Đồng hành cùng sĩ tử</small></div>
+        </div>
+        <div class="side-quote">「學而時習之」<small>Học rồi thường ôn tập</small></div>
+      </div>
+    </aside>
+
+    <main class="main-area">
+      <header class="topbar">
+        <div class="mobile-brand"><span class="brand-seal">NQV</span><strong>KHOA CỬ HÁN NGỮ</strong></div>
+        <div class="crumbs"><span>THIÊN HẠ HỌC ĐƯỜNG</span><span class="crumb-divider">/</span><strong id="crumb-current">ĐIỆN HỌC TẬP</strong></div>
+        <div class="top-actions">
+          <div class="resource-pill"><span class="resource-icon">✦</span><strong id="xp-value">0</strong><small>công danh</small></div>
+          <button class="profile-chip" id="profile-button" aria-label="Tài khoản"><span class="avatar-dot" id="avatar-letter">S</span><span id="profile-name">Sĩ tử</span><span class="chevron">⌄</span></button>
+        </div>
+      </header>
+
+      <div class="content-wrap" id="app-content" tabindex="-1">
+        <section class="view active" id="view-home" aria-labelledby="home-heading">
+          <div class="hero-panel">
+            <div class="hero-copy">
+              <div class="eyebrow"><span class="eyebrow-line"></span> THIÊN HẠ · KHOA CỬ · HÁN NGỮ</div>
+              <h1 id="home-heading">Mài kinh sử,<br><em>ghi danh bảng vàng.</em></h1>
+              <p>Khởi đầu từ nét chữ đầu tiên. Vượt sáu bậc HSK, bước qua trường thi và tự tay viết nên con đường quan lộ của mình.</p>
+              <div class="hero-buttons"><button class="btn btn-gold" id="continue-button">Tiếp tục hành trình <span>↗</span></button><button class="btn btn-ghost" data-go="map">Xem khoa lộ</button></div>
+              <div class="hero-seal-row"><span class="seal-star">✦</span><span>HỌC · LUYỆN · THI · ĐỖ ĐẠT</span><span class="seal-star">✦</span></div>
+            </div>
+            <div class="hero-art" aria-label="Minh họa cổng trường thi cổ phong">
+              <div class="sun-disc"></div><div class="art-cloud cloud-a"></div><div class="art-cloud cloud-b"></div>
+              <svg class="palace-art" viewBox="0 0 620 410" role="img" aria-label="Cổng trường thi và mái điện cổ">
+                <path d="M0 330 Q110 260 205 330 T410 320 T620 315 V410 H0Z" fill="#456c5c" opacity=".5"/>
+                <path d="M0 360 Q95 315 185 365 T370 355 T620 350 V410 H0Z" fill="#274f43" opacity=".8"/>
+                <path d="M85 330 L120 210 L170 330 M440 332 L485 185 L535 332" fill="none" stroke="#c8aa71" stroke-width="3" opacity=".5"/>
+                <g fill="#183b33" stroke="#d9bb7e" stroke-width="3" stroke-linejoin="round">
+                  <path d="M170 218 L310 105 L450 218 L430 228 L310 143 L190 228Z"/>
+                  <path d="M202 214 H418 V336 H202Z"/>
+                  <path d="M180 212 H440 V232 H180Z"/>
+                  <path d="M217 232 H403 V335 H217Z" fill="#20483c"/>
+                  <path d="M270 335 V255 Q310 215 350 255 V335Z" fill="#102c27"/>
+                  <path d="M185 211 L168 210 L153 195 L174 198 L185 205Z"/>
+                  <path d="M435 211 L452 210 L467 195 L446 198 L435 205Z"/>
+                  <path d="M304 104 V77 H316 V104"/>
+                  <path d="M299 82 Q310 60 321 82Z"/>
+                </g>
+                <g stroke="#d4b77d" stroke-width="2" fill="none" opacity=".8"><path d="M232 238 V321 M388 238 V321 M250 238 V321 M370 238 V321"/><path d="M214 246 H406 M214 310 H406"/></g>
+                <g fill="#e6c98e"><circle cx="310" cy="184" r="4"/><path d="M306 188 H314 V199 H306Z"/></g>
+                <g fill="#173b32"><path d="M38 345 Q40 300 60 275 Q80 300 82 345Z"/><path d="M28 345 Q9 326 18 306 Q39 311 42 345Z"/><path d="M540 355 Q541 300 565 270 Q589 304 587 355Z"/><path d="M570 355 Q590 325 608 315 Q615 338 600 355Z"/></g>
+                <g fill="#d9bd86" opacity=".6"><circle cx="113" cy="118" r="2"/><circle cx="500" cy="92" r="2"/><circle cx="470" cy="140" r="1.5"/><circle cx="133" cy="178" r="1.5"/></g>
+              </svg>
+              <div class="art-caption"><span>大學之道</span><small>ĐẠI HỌC CHI ĐẠO</small></div>
+              <div class="art-stamp">NQV<br><small>文</small></div>
+            </div>
+          </div>
+
+          <div class="welcome-strip"><div class="welcome-icon">文</div><div><strong id="welcome-title">Sĩ tử, đường khoa cử đã mở!</strong><p id="welcome-subtitle">Thầy Mặc Bảo đang chờ con ở lớp nhập môn.</p></div><button class="text-arrow" data-go="study">Vào lớp <span>→</span></button></div>
+
+          <div class="section-heading"><div><div class="eyebrow dark-eyebrow">LỘ TRÌNH TU THÂN</div><h2>Con đường <em>vinh danh</em></h2></div><button class="link-button" data-go="map">Xem toàn bộ lộ trình <span>→</span></button></div>
+          <div class="stage-preview" id="stage-preview"></div>
+
+          <div class="home-lower-grid">
+            <section class="paper-card daily-card"><div class="card-kicker">LỜI THẦY DẠY</div><div class="quote-mark">“</div><blockquote>學而不思則罔，思而不學則殆。</blockquote><p>Học mà không suy nghĩ thì mơ hồ; suy nghĩ mà không học thì nguy.</p><small>— Luận ngữ · Vi chính</small></section>
+            <section class="paper-card progress-card"><div class="card-topline"><div><div class="card-kicker">CÔNG DANH HIỆN TẠI</div><h3 id="rank-title">Học trò nhập môn</h3></div><div class="rank-medal" id="rank-medal">童</div></div><div class="progress-track"><span id="overall-progress"></span></div><div class="progress-meta"><span id="progress-caption">0 / 12 bài học hoàn thành</span><strong id="progress-percent">0%</strong></div><div class="stats-row"><div><strong id="stat-lessons">0</strong><small>Bài đã học</small></div><div><strong id="stat-exams">0/6</strong><small>Khoa thi đỗ</small></div><div><strong id="stat-streak">0</strong><small>Ngày chuyên cần</small></div></div></section>
+          </div>
+        </section>
+
+        <section class="view" id="view-map" aria-labelledby="map-heading">
+          <div class="page-heading"><div class="eyebrow dark-eyebrow">SƠ ĐỒ CÔNG DANH</div><h1 id="map-heading">Lục khoa <em>vinh hiển</em></h1><p>Mỗi cánh cổng chỉ mở khi con đã hoàn thành bài học và vượt qua kỳ thi tương ứng.</p></div>
+          <div class="map-banner"><div class="map-banner-copy"><span>科舉之路</span><strong>Đường đến bảng vàng</strong><small>Tích lũy tri thức · Vượt kỳ khảo · Tiến thân từng bậc</small></div><div class="map-banner-mark">榜</div></div>
+          <section class="explore-card" aria-label="Sân trường để di chuyển nhân vật">
+            <div class="explore-heading"><div><div class="card-kicker">TỰ DO KHÁM PHÁ</div><strong>Dạo bước chốn thư viện</strong><small>Dùng phím mũi tên / WASD hoặc nút điều hướng để di chuyển thầy đồ nhỏ.</small></div><span class="explore-coord" id="world-coord">08 · 58</span></div>
+            <div class="explore-scene" id="explore-scene">
+              <div class="scene-moon"></div><div class="scene-mountain mountain-a"></div><div class="scene-mountain mountain-b"></div>
+              <button type="button" class="scene-building building-library" aria-label="Vào Tàng Thư Các"><span>藏書閣</span><small>TÀNG THƯ CÁC</small></button>
+              <button type="button" class="scene-building building-exam" aria-label="Đến Trường Thi"><span>考場</span><small>TRƯỜNG THI</small></button>
+              <div class="scene-pond"></div><div class="scene-path"></div>
+              <div class="walk-panda" id="walk-panda" aria-label="Nhân vật sĩ tử đang di chuyển"><svg viewBox="0 0 80 94" role="img" aria-label="Sĩ tử gấu trúc mặc áo xanh"><ellipse cx="40" cy="84" rx="22" ry="5" fill="#102b24" opacity=".22"/><path d="M22 44 Q40 34 58 44 L62 77 Q40 88 18 77Z" fill="#b94f3d" stroke="#e6c98f" stroke-width="2"/><path d="M30 44 L40 61 L50 44" fill="#f5e9cf"/><path d="M40 48 V80" stroke="#e6c98f" stroke-width="1.5"/><circle cx="21" cy="19" r="11" fill="#202e2b"/><circle cx="59" cy="19" r="11" fill="#202e2b"/><ellipse cx="40" cy="31" rx="25" ry="23" fill="#fffaf0" stroke="#d8c49e" stroke-width="1.4"/><ellipse cx="31" cy="28" rx="6" ry="8" transform="rotate(22 31 28)" fill="#263532"/><ellipse cx="49" cy="28" rx="6" ry="8" transform="rotate(-22 49 28)" fill="#263532"/><circle cx="32" cy="28" r="2.1" fill="white"/><circle cx="48" cy="28" r="2.1" fill="white"/><ellipse cx="40" cy="38" rx="4.5" ry="3" fill="#27342f"/><path d="M18 18 Q40 -2 62 18 L58 22 Q40 11 22 22Z" fill="#23483b" stroke="#d9bd86" stroke-width="2"/><path d="M40 3 V-2 M31 7 L27 2 M49 7 L53 2" stroke="#e1c88f" stroke-width="2" stroke-linecap="round"/><path d="M23 77 L20 87 M57 77 L60 87" stroke="#283a31" stroke-width="6" stroke-linecap="round"/><path d="M18 57 L8 67 M62 57 L72 67" stroke="#fff8e8" stroke-width="6" stroke-linecap="round"/></svg></div>
+              <div class="scene-lantern lantern-left"></div><div class="scene-lantern lantern-right"></div>
+            </div>
+            <div class="explore-controls"><p id="world-message">Sĩ tử có thể đi dạo quanh thư viện. Hãy thử di chuyển đến các công trình.</p><div class="dpad" aria-label="Phím điều khiển"><button data-move="up" aria-label="Đi lên">▲</button><button data-move="left" aria-label="Đi trái">◀</button><button data-move="down" aria-label="Đi xuống">▼</button><button data-move="right" aria-label="Đi phải">▶</button></div></div>
+          </section>
+          <div class="map-path" id="map-path"></div>
+          <div class="official-panel" id="official-panel"></div>
+        </section>
+
+        <section class="view" id="view-study" aria-labelledby="study-heading">
+          <div class="page-heading compact-heading"><div class="eyebrow dark-eyebrow">TÀNG KINH CÁC</div><h1 id="study-heading">Bài học <em>Hán ngữ</em></h1><p>Học từng cụm từ, nghe phát âm và ghi nhớ bằng câu hỏi ngắn.</p></div>
+          <div id="lesson-list" class="lesson-grid"></div>
+        </section>
+
+        <section class="view" id="view-exam" aria-labelledby="exam-heading">
+          <div class="page-heading compact-heading"><div class="eyebrow dark-eyebrow">TRƯỜNG THI · 考場</div><h1 id="exam-heading">Kỳ khảo <em>công danh</em></h1><p>Không có đường tắt đến bảng vàng. Hoàn tất bài học, dự thi và đạt điểm chuẩn để tiến bậc.</p></div>
+          <div id="exam-content"></div>
+        </section>
+
+        <section class="view" id="view-records" aria-labelledby="records-heading">
+          <div class="page-heading compact-heading"><div class="eyebrow dark-eyebrow">SỔ DANH SĨ TỬ</div><h1 id="records-heading">Bảng <em>thành tích</em></h1><p>Ghi lại hành trình học tập, từng lần dự khảo và những dấu mốc con đã đạt được.</p></div>
+          <div id="records-content"></div>
+        </section>
+
+        <section class="view" id="view-lesson" aria-labelledby="lesson-title">
+          <div class="lesson-toolbar"><button class="back-button" id="lesson-back">← Quay lại</button><span id="lesson-level-label">HSK 1 · NHẬP MÔN</span><span id="lesson-step-label">01 / 04</span></div>
+          <div id="lesson-content"></div>
+        </section>
+
+        <section class="view" id="view-quiz" aria-labelledby="quiz-title">
+          <div class="lesson-toolbar"><button class="back-button" id="quiz-exit">← Rời trường thi</button><span id="quiz-label">KỲ THI HSK 1</span><span id="quiz-step">01 / 08</span></div>
+          <div id="quiz-content"></div>
+        </section>
+      </div>
+
+      <footer class="site-footer"><span>文以載道 · 學無止境</span><span>© Nông Quang Vinh</span></footer>
+    </main>
+  </div>
+
+  <nav class="mobile-nav" aria-label="Điều hướng di động">
+    <button class="active" data-view="home"><span>⌂</span><small>Điện</small></button>
+    <button data-view="map"><span>♧</span><small>Khoa lộ</small></button>
+    <button data-view="study"><span>▤</span><small>Học</small></button>
+    <button data-view="exam"><span>✧</span><small>Thi</small></button>
+    <button data-view="records"><span>▥</span><small>Sổ</small></button>
+  </nav>
+
+  <div class="modal-backdrop" id="auth-modal" hidden>
+    <section class="auth-modal" role="dialog" aria-modal="true" aria-labelledby="auth-title">
+      <button class="modal-close" id="auth-close" aria-label="Đóng">×</button>
+      <div class="auth-seal">文</div><div class="eyebrow dark-eyebrow">DANH SÁCH SĨ TỬ</div><h2 id="auth-title">Ghi danh nhập học</h2><p class="auth-intro">Tạo hồ sơ trên thiết bị này để lưu tiến trình và tiếp tục hành trình lần sau.</p>
+      <div class="auth-tabs"><button class="selected" data-auth-mode="register">Đăng ký</button><button data-auth-mode="login">Đăng nhập</button></div>
+      <form id="auth-form">
+        <label id="name-field">Danh xưng<input id="auth-name" autocomplete="nickname" placeholder="Tên sĩ tử" maxlength="24"></label>
+        <label>Tên đăng nhập<input id="auth-username" autocomplete="username" placeholder="Ví dụ: vinh123" required minlength="3" maxlength="24"></label>
+        <label>Mật khẩu<input id="auth-password" type="password" autocomplete="new-password" placeholder="Tối thiểu 8 ký tự" required minlength="8"></label>
+        <label class="remember-row"><input id="auth-remember" type="checkbox" checked><span>Ghi nhớ đăng nhập trên thiết bị này</span></label>
+        <p class="auth-error" id="auth-error" role="alert"></p>
+        <button class="btn btn-gold auth-submit" type="submit" id="auth-submit">Đăng ký nhập học <span>→</span></button>
+      </form>
+      <div class="auth-divider"><span>hoặc</span></div><button class="guest-button" id="guest-button">Vào học thử với tư cách khách</button>
+      <small class="local-note">Hồ sơ hiện được lưu tại trình duyệt này, chưa đồng bộ qua thiết bị khác.</small>
+    </section>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="data.js"></script>
+  <script src="auth.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

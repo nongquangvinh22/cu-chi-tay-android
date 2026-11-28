@@ -1,0 +1,15 @@
+{
+  "name": "NQV Khoa Cử Hán Ngữ",
+  "short_name": "Khoa Cử Hán Ngữ",
+  "description": "Hành trình học tiếng Trung từ HSK 1 đến HSK 6 qua khoa cử cổ phong.",
+  "lang": "vi",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f4eedf",
+  "theme_color": "#173d35",
+  "icons": [
+    { "src": "assets/icon-192.svg", "sizes": "192x192", "type": "image/svg+xml", "purpose": "any maskable" },
+    { "src": "assets/icon-512.svg", "sizes": "512x512", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
