@@ -156,24 +156,27 @@
   <div class="modal-backdrop" id="auth-modal" hidden>
     <section class="auth-modal" role="dialog" aria-modal="true" aria-labelledby="auth-title">
       <button class="modal-close" id="auth-close" aria-label="Đóng">×</button>
-      <div class="auth-seal">文</div><div class="eyebrow dark-eyebrow">DANH SÁCH SĨ TỬ</div><h2 id="auth-title">Ghi danh nhập học</h2><p class="auth-intro">Tạo hồ sơ trên thiết bị này để lưu tiến trình và tiếp tục hành trình lần sau.</p>
+      <div class="auth-seal">文</div><div class="eyebrow dark-eyebrow">DANH SÁCH SĨ TỬ</div><h2 id="auth-title">Ghi danh nhập học</h2><p class="auth-intro">Tạo tài khoản trực tuyến để lưu công danh và tiếp tục học trên mọi thiết bị.</p>
       <div class="auth-tabs"><button class="selected" data-auth-mode="register">Đăng ký</button><button data-auth-mode="login">Đăng nhập</button></div>
       <form id="auth-form">
         <label id="name-field">Danh xưng<input id="auth-name" autocomplete="nickname" placeholder="Tên sĩ tử" maxlength="24"></label>
-        <label>Tên đăng nhập<input id="auth-username" autocomplete="username" placeholder="Ví dụ: vinh123" required minlength="3" maxlength="24"></label>
+        <label>Email<input id="auth-username" type="email" autocomplete="email" placeholder="you@example.com" required maxlength="254"></label>
         <label>Mật khẩu<input id="auth-password" type="password" autocomplete="new-password" placeholder="Tối thiểu 8 ký tự" required minlength="8"></label>
         <label class="remember-row"><input id="auth-remember" type="checkbox" checked><span>Ghi nhớ đăng nhập trên thiết bị này</span></label>
         <p class="auth-error" id="auth-error" role="alert"></p>
         <button class="btn btn-gold auth-submit" type="submit" id="auth-submit">Đăng ký nhập học <span>→</span></button>
       </form>
       <div class="auth-divider"><span>hoặc</span></div><button class="guest-button" id="guest-button">Vào học thử với tư cách khách</button>
-      <small class="local-note">Hồ sơ hiện được lưu tại trình duyệt này, chưa đồng bộ qua thiết bị khác.</small>
+      <small class="local-note">Khi kết nối Supabase, hồ sơ sẽ đồng bộ trực tuyến. Nếu chưa cấu hình, game vẫn chạy ở chế độ khách.</small>
     </section>
   </div>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
   <script src="data.js"></script>
   <script src="auth.js"></script>
+  <script src="cloud-auth.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
