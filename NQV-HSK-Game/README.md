@@ -24,9 +24,24 @@ python -m http.server 8080
 
 Sau đó truy cập `http://localhost:8080/NQV-HSK-Game/` nếu chạy máy chủ ở thư mục cha, hoặc `http://localhost:8080/` nếu chạy bên trong thư mục này.
 
+## Tài khoản trực tuyến và đồng bộ nhiều thiết bị
+
+Ứng dụng đã tích hợp Supabase Auth + PostgreSQL để đăng ký bằng email, đăng nhập nhiều thiết bị và đồng bộ hồ sơ/tiến trình. Để kích hoạt đồng bộ thật sự:
+
+1. Tạo một project miễn phí tại https://supabase.com.
+2. Mở **SQL Editor**, dán và chạy toàn bộ nội dung file `supabase-schema.sql`.
+3. Vào **Project Settings → API**. Sao chép **Project URL** và **anon/public key** (không dùng service_role).
+4. Mở `supabase-config.js`, thay hai giá trị `YOUR_SUPABASE_PROJECT_URL` và `YOUR_SUPABASE_ANON_KEY`.
+5. Trong Supabase → **Authentication → Providers → Email**, bật Email provider. Để đăng nhập ngay sau đăng ký, có thể tắt xác nhận email; nếu bật xác nhận, người dùng phải xác nhận email trước khi đăng nhập.
+6. Commit thay đổi và triển khai lại GitHub Pages. Tài khoản đăng ký sau khi cấu hình sẽ đồng bộ qua các thiết bị.
+
+**Bảo mật:** bảng hồ sơ bật Row Level Security; mỗi người dùng chỉ được đọc/ghi dòng có `id = auth.uid()`. Chỉ đưa anon/public key vào trình duyệt, tuyệt đối không đưa service_role key vào repository.
+
+Nếu chưa điền cấu hình Supabase, chế độ khách vẫn hoạt động; đăng ký/đăng nhập trực tuyến sẽ báo cần cấu hình máy chủ.
+
 ## Lưu trữ tài khoản và giới hạn quan trọng
 
-Bản hiện tại là ứng dụng front-end tĩnh, chưa có máy chủ tài khoản. Đăng ký tạo hồ sơ cục bộ trong trình duyệt bằng PBKDF2 + salt để không lưu mật khẩu dạng văn bản; cookie `nqv_hsk_player` chỉ ghi nhớ ID hồ sơ trên thiết bị. Vì vậy:
+Khi chưa cấu hình Supabase, game chỉ có chế độ khách và dữ liệu cục bộ. Khi Supabase đã cấu hình, xác thực và đồng bộ được xử lý bởi máy chủ; cookie không còn là nguồn xác thực chính. Vì vậy:
 
 - Có thể tiếp tục chơi mà không phải đăng nhập lại trên cùng trình duyệt/thiết bị nếu đã bật ghi nhớ.
 - Xóa dữ liệu trang web, đổi trình duyệt hoặc đổi thiết bị có thể làm mất/không thấy hồ sơ.
