@@ -482,4 +482,3 @@
   });
 })();
 
-window.addEventListener("nqv-sync-status", (event) => { if (!event.detail?.ok) showToast(event.detail?.message || "Đồng bộ đang gặp sự cố."); });
