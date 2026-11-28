@@ -45,7 +45,7 @@ Khi chưa cấu hình Supabase, game chỉ có chế độ khách và dữ liệ
 
 - Có thể tiếp tục chơi mà không phải đăng nhập lại trên cùng trình duyệt/thiết bị nếu đã bật ghi nhớ.
 - Xóa dữ liệu trang web, đổi trình duyệt hoặc đổi thiết bị có thể làm mất/không thấy hồ sơ.
-- Tài khoản chưa đồng bộ qua Internet và chưa có khả năng khôi phục bằng email.
+- Nếu chưa cấu hình Supabase, tài khoản cục bộ không đồng bộ qua Internet và không thể khôi phục trên thiết bị khác.
 - Không dùng cơ chế này cho dữ liệu nhạy cảm hoặc tài khoản có giá trị. Muốn đồng bộ thật sự giữa điện thoại và máy tính cần backend, cơ sở dữ liệu và xác thực phía máy chủ.
 
 ## Ghi chú về học liệu
