@@ -13,7 +13,15 @@
     const { data, error } = await client.from("player_profiles").select("display_name, username, progress").eq("id", user.id).maybeSingle();
     if (error) throw error;
     if (!data) {
-      const p = { id: user.id, name: user.user_metadata?.display_name || user.email.split("@")[0], username: user.email, email: user.email, kind: "cloud", progress: defaults() };
+      let recovered = defaults();
+      try {
+        const pending = JSON.parse(localStorage.getItem("nqv_hsk_pending_signup") || "null");
+        if (pending && pending.email === user.email && pending.progress) {
+          recovered = pending.progress;
+          localStorage.removeItem("nqv_hsk_pending_signup");
+        }
+      } catch (_) {}
+      const p = { id: user.id, name: user.user_metadata?.display_name || user.email.split("@")[0], username: user.email, email: user.email, kind: "cloud", progress: recovered };
       const { error: insertError } = await client.from("player_profiles").insert({ id: p.id, display_name: p.name, username: p.username, progress: p.progress });
       if (insertError) throw insertError;
       return p;
@@ -56,6 +64,7 @@
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(clean)) throw new Error("Vui lòng nhập email hợp lệ.");
       if (password.length < 8) throw new Error("Mật khẩu cần ít nhất 8 ký tự.");
       const guestProgress = profile?.kind === "guest" ? profile.progress : defaults();
+      try { localStorage.setItem("nqv_hsk_pending_signup", JSON.stringify({ email: clean, progress: guestProgress })); } catch (_) {}
       const { data, error } = await client.auth.signUp({ email: clean, password, options: { data: { display_name: displayName.trim() || clean.split("@")[0] } } });
       if (error) throw error;
       if (!data.session || !data.user) throw new Error("Đã gửi email xác nhận. Hãy xác nhận email rồi đăng nhập.");
