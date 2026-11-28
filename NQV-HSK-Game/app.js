@@ -380,7 +380,7 @@
       state.progress = profile.progress;
       closeAuth();
       updateUserInterface();
-      showToast(state.authMode === "register" ? "Đã ghi danh thành công. Hồ sơ được lưu trên trình duyệt này." : "Đăng nhập thành công. Đã khôi phục tiến trình trên thiết bị này.");
+      showToast(state.authMode === "register" ? "Đã ghi danh thành công. Hồ sơ đã được lưu." : "Đăng nhập thành công. Đã tải tiến trình tài khoản.");
     } catch (error) {
       $("#auth-error").textContent = error.message || "Không thể hoàn tất thao tác.";
     } finally {
@@ -481,3 +481,5 @@
     showToast("Không thể khởi tạo hồ sơ. Vui lòng tải lại trang.");
   });
 })();
+
+window.addEventListener("nqv-sync-status", (event) => { if (!event.detail?.ok) showToast(event.detail?.message || "Đồng bộ đang gặp sự cố."); });
