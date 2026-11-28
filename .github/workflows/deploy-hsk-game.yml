@@ -30,6 +30,8 @@ jobs:
         run: |
           node --check NQV-HSK-Game/data.js
           node --check NQV-HSK-Game/auth.js
+          node --check NQV-HSK-Game/cloud-auth.js
+          node --check NQV-HSK-Game/supabase-config.js
           node --check NQV-HSK-Game/app.js
           node --check NQV-HSK-Game/sw.js
       - name: Configure GitHub Pages
