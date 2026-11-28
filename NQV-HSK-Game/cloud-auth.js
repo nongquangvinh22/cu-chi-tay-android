@@ -69,7 +69,7 @@
       if (error) throw error;
       profile = await load(data.user); cache(profile); notify(); return profile;
     },
-    async continueAsGuest() { profile = await local.continueAsGuest(); return profile; },
+    continueAsGuest() { profile = local.continueAsGuest(); return profile; },
     save() { if (profile?.kind === "cloud") { cache(profile); sync(); } else local.save(); },
     updateProgress(mutator) {
       if (!profile) return null;
