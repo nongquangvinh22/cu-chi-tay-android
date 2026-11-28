@@ -27,8 +27,9 @@
   function sync() {
     if (!ready || !profile || profile.kind !== "cloud") return;
     const snapshot = JSON.parse(JSON.stringify(profile.progress));
+    const target = { id: profile.id, name: profile.name, username: profile.username };
     saveChain = saveChain.then(() => client.from("player_profiles").upsert({
-      id: profile.id, display_name: profile.name, username: profile.username, progress: snapshot, updated_at: new Date().toISOString()
+      id: target.id, display_name: target.name, username: target.username, progress: snapshot, updated_at: new Date().toISOString()
     }, { onConflict: "id" })).then(({ error }) => {
       if (error) throw error;
       window.dispatchEvent(new CustomEvent("nqv-sync-status", { detail: { ok: true } }));
